@@ -1473,23 +1473,23 @@ function searchBing(topic) {
   function fetchOne(src) {
     var query = "site:" + src.site + " " + topic;
     var url = getProxy() + encodeURIComponent(
-      "https://www.bing.com/search?q=" + encodeURIComponent(query) + "&count=5&setlang=zh-cn"
+      "https://www.bing.com/search?q=" + encodeURIComponent(query) + "&format=rss&setmkt=zh-CN&cc=CN&count=5"
     );
-    return fetch(url, { headers: { "Accept": "text/html" } })
+    return fetch(url, { headers: { "Accept": "text/xml" } })
       .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
-      .then(function(html) {
+      .then(function(xml) {
         var results = [];
-        var re = /<li class="b_algo"[^>]*>([\s\S]*?)<\/li>/gi;
-        var m;
-        while ((m = re.exec(html)) !== null && results.length < 5) {
-          var block = m[1];
-          var tm = block.match(/<h2[^>]*>\s*<a[^>]*href="(https?:\/\/[^"]*)"[^>]*>([\s\S]*?)<\/a>\s*<\/h2>/i);
-          if (!tm) continue;
-          var link = tm[1];
-          var title = tm[2].replace(/<[^>]+>/g, "").trim();
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(xml, "text/xml");
+        var items = doc.querySelectorAll("channel > item");
+        for (var i = 0; i < items.length && results.length < 5; i++) {
+          var el = items[i];
+          var title = (el.querySelector("title") || {}).textContent || "";
+          var link = (el.querySelector("link") || {}).textContent || "";
+          var summary = (el.querySelector("description") || {}).textContent || "";
+          title = title.replace(/<[^>]+>/g, "").trim();
+          summary = summary.replace(/<[^>]+>/g, "").trim();
           if (!title || link.indexOf("http") !== 0) continue;
-          var sm = block.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
-          var summary = sm ? sm[1].replace(/<[^>]+>/g, "").trim() : "";
           results.push({ title: title, link: link, summary: summary, source: src.name, content: "" });
         }
         return results;
