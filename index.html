@@ -151,6 +151,7 @@ h3 {
 }
 
 .compose-panel,
+.material-panel,
 .result-panel,
 .output-block {
   border: 1px solid var(--line);
@@ -160,6 +161,7 @@ h3 {
 }
 
 .compose-panel,
+.material-panel,
 .result-panel {
   padding: 16px;
 }
@@ -576,6 +578,7 @@ select:focus {
   }
 
   .compose-panel,
+  .material-panel,
   .result-panel {
     padding: 13px;
   }
@@ -951,7 +954,24 @@ select:focus {
           </div>
         </div>
 
-        </section>
+        <div class="material-panel">
+          <div class="section-head">
+            <h2>自动参考素材</h2>
+            <div style="display:flex;gap:8px;">
+              <button class="text-button" id="fetchMaterialsBtn">获取安全素材</button>
+              <button class="text-button" id="exportDailyCardBtn">导出日报</button>
+              <button class="text-button" id="clearFilterBtn">全部</button>
+              <button class="text-button" id="exportMaterialsBtn">导出素材</button>
+              <button class="text-button" id="importMaterialsBtn">导入素材</button>
+            </div>
+          </div>
+
+          <input class="search-input" id="materialSearch" type="search" placeholder="可选：手动搜索安全、健康、工会、节日、党政等素材" />
+
+          <div class="tabs" id="categoryTabs" role="tablist"></div>
+          <div class="material-list" id="materialList"></div>
+        </div>
+      </section>
 
       <section class="result-panel" id="resultPanel" hidden>
         <div class="section-head result-head">
@@ -1377,6 +1397,10 @@ function initSettings() {
         generateBtn: document.getElementById("generateBtn"),
         copyBtn: document.getElementById("copyBtn"),
         resetBtn: document.getElementById("resetBtn"),
+        materialSearch: document.getElementById("materialSearch"),
+        materialList: document.getElementById("materialList"),
+        categoryTabs: document.getElementById("categoryTabs"),
+        clearFilterBtn: document.getElementById("clearFilterBtn"),
         reviewMetric: document.getElementById("reviewMetric"),
         quickTags: document.getElementById("quickTags"),
         audienceSelect: document.getElementById("audienceSelect"),
@@ -1797,6 +1821,8 @@ function fetchArticleContent(item) {
         console.log("=== INIT START ===");
         renderMetrics();
         renderQuickTags();
+        renderTabs();
+        renderMaterials();
         bindEvents();
         initSettings();
       }
@@ -1814,9 +1840,48 @@ function fetchArticleContent(item) {
           .join("");
       }
 
-      function renderTabs() { /* 素材面板已移除 */ }
-      function getFilteredMaterials() { return []; }
-      function renderMaterials() { /* 素材面板已移除 */ }
+      function renderTabs() {
+        els.categoryTabs.innerHTML = categories
+          .map(function(category) {
+            var active = state.activeCategory === category ? " active" : "";
+            return '<button class="tab' + active + '" type="button" data-category="' + escapeHtml(category) + '">' + escapeHtml(category) + '</button>';
+          })
+          .join("");
+      }
+
+      function getFilteredMaterials() {
+        var keyword = els.materialSearch.value.trim().toLowerCase();
+        return materials.filter(function(item) {
+          var byCategory = state.activeCategory === "全部" || item.category === state.activeCategory;
+          var byReview = !state.reviewFilter || item.review === true;
+          var searchable = [item.title, item.source, item.summary, item.category].concat(item.tags).join(" ").toLowerCase();
+          return byCategory && byReview && (!keyword || searchable.indexOf(keyword) !== -1);
+        });
+      }
+
+      function renderMaterials() {
+        var filtered = getFilteredMaterials();
+        if (!filtered.length) {
+          els.materialList.innerHTML = '<div class="material-item"><p class="material-title">没有匹配素材</p><p class="material-summary">换一个关键词或分类。</p></div>';
+          return;
+        }
+
+        els.materialList.innerHTML = filtered
+          .map(function(item) {
+            var selected = state.selectedMaterialId === item.id ? " selected" : "";
+            return '<button class="material-item' + selected + '" type="button" data-material-id="' + item.id + '">' +
+              '<div class="material-meta">' +
+                '<span class="badge">' + escapeHtml(item.category) + '</span>' +
+                (item.review ? '<span class="badge" style="background:#fef2f2;color:#b42318;font-weight:600;">待审</span>' : '') +
+                '<span class="source-name">' + escapeHtml(item.publishedAt) + '</span>' +
+              '</div>' +
+              '<p class="material-title">' + escapeHtml(item.title) + '</p>' +
+              '<p class="material-summary">' + escapeHtml(item.summary) + '</p>' +
+              '<p class="source-name">' + (item.sourceUrl ? '<a href="' + escapeHtml(item.sourceUrl) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + escapeHtml(item.source) + '</a>' : escapeHtml(item.source)) + '</p>' +
+            '</button>';
+          })
+          .join("");
+      }
 
       function bindEvents() {
         console.log("=== BIND EVENTS START ===");
@@ -1826,6 +1891,53 @@ function fetchArticleContent(item) {
           els.topicInput.value = btn.dataset.topic;
         });
         console.log("bound: quickTags");
+
+        els.categoryTabs.addEventListener("click", function(event) {
+          var btn = event.target.closest("[data-category]");
+          if (!btn) return;
+          state.activeCategory = btn.dataset.category;
+          renderTabs();
+          renderMaterials();
+        });
+        console.log("bound: categoryTabs");
+
+        els.clearFilterBtn.addEventListener("click", function() {
+          state.activeCategory = "全部";
+          state.reviewFilter = false;
+          els.materialSearch.value = "";
+          els.reviewMetric.classList.remove("review-active");
+          renderTabs();
+          renderMaterials();
+        });
+        console.log("bound: clearFilterBtn");
+
+        els.reviewMetric.addEventListener("click", function() {
+          state.reviewFilter = !state.reviewFilter;
+          if (state.reviewFilter) {
+            els.reviewMetric.classList.add("review-active");
+            state.activeCategory = "全部";
+            renderTabs();
+          } else {
+            els.reviewMetric.classList.remove("review-active");
+          }
+          renderMaterials();
+        });
+        console.log("bound: reviewMetric");
+
+        els.materialSearch.addEventListener("input", renderMaterials);
+        console.log("bound: materialSearch");
+
+        els.materialList.addEventListener("click", function(event) {
+          var btn = event.target.closest("[data-material-id]");
+          if (!btn) return;
+          state.selectedMaterialId = btn.dataset.materialId;
+          var material = materials.find(function(item) { return item.id === state.selectedMaterialId; });
+          if (material) {
+            els.topicInput.value = material.title;
+          }
+          renderMaterials();
+        });
+        console.log("bound: materialList");
 
         els.generateBtn.addEventListener("click", function() { generateDraft(); });
         els.copyBtn.addEventListener("click", copyDraft);
@@ -2274,7 +2386,10 @@ function fetchArticleContent(item) {
         state.activeCategory = "全部";
         state.selectedMaterialId = null;
         els.topicInput.value = "";
+        els.materialSearch.value = "";
         els.resultPanel.hidden = true;
+        renderTabs();
+        renderMaterials();
         showToast("已清空当前草稿。");
       }
 
