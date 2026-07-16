@@ -1,0 +1,3187 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>强安兴企安全园地智能图文助手</title>
+<script async src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" onerror="console.warn('html2canvas CDN failed, export disabled')"></script>
+
+    <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f7f8;
+  --surface: #ffffff;
+  --surface-strong: #f0f4f3;
+  --text: #17201d;
+  --muted: #66736f;
+  --line: #d8dfdc;
+  --red: #b42318;
+  --red-soft: #fff1ef;
+  --green: #16705a;
+  --green-soft: #eaf6f1;
+  --amber: #a15c00;
+  --amber-soft: #fff5e3;
+  --ink-soft: #edf0f2;
+  --shadow: 0 12px 36px rgba(22, 32, 29, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.app-shell {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 18px 16px 36px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0 16px;
+}
+
+.eyebrow {
+  margin: 0 0 3px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(25px, 6vw, 36px);
+  line-height: 1.15;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: 18px;
+}
+
+h3 {
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.icon-button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 20px;
+  box-shadow: var(--shadow);
+}
+
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.metric {
+  min-height: 72px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.metric span {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.metric p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.metric.review-active {
+  border-color: #b42318;
+  background: #fef2f2;
+  box-shadow: 0 0 0 2px rgba(180, 35, 24, 0.15);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.compose-panel,
+.material-panel,
+.result-panel,
+.output-block {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.compose-panel,
+.material-panel,
+.result-panel {
+  padding: 16px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.status-pill,
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+textarea,
+.search-input,
+select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  outline: none;
+}
+
+textarea {
+  min-height: 118px;
+  resize: vertical;
+  padding: 12px;
+  line-height: 1.55;
+}
+
+.search-input {
+  height: 42px;
+  padding: 0 12px;
+  margin-bottom: 12px;
+}
+
+select {
+  height: 42px;
+  padding: 0 10px;
+}
+
+textarea:focus,
+.search-input:focus,
+select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(22, 112, 90, 0.12);
+}
+
+.quick-tags,
+.tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 1px 2px;
+  scrollbar-width: thin;
+}
+
+.chip,
+.tab,
+.text-button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.chip,
+.tab {
+  min-height: 34px;
+  padding: 7px 11px;
+  font-size: 13px;
+}
+
+.tab.active {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+  font-weight: 700;
+}
+
+.text-button {
+  min-height: 30px;
+  padding: 5px 10px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.form-grid label span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.primary-action,
+.secondary-action {
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.primary-action {
+  width: 100%;
+  background: var(--red);
+  color: #fff;
+}
+
+.secondary-action {
+  padding: 0 14px;
+  background: var(--green);
+  color: #fff;
+}
+
+.material-list {
+  display: grid;
+  gap: 10px;
+  max-height: 640px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.material-item {
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.material-item.selected {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.material-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.material-title {
+  margin: 0 0 7px;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.material-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.source-name {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.result-panel {
+  margin-top: 14px;
+}
+
+.result-head {
+  align-items: flex-start;
+}
+
+.cover-preview {
+  display: grid;
+  align-content: space-between;
+  min-height: 210px;
+  margin-bottom: 14px;
+  padding: 18px;
+  border-radius: 8px;
+  background:
+    linear-gradient(120deg, rgba(180, 35, 24, 0.92), rgba(22, 112, 90, 0.86)),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 12px);
+  color: #fff;
+}
+
+.cover-kicker,
+.cover-footer {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cover-title {
+  max-width: 680px;
+  font-size: clamp(24px, 7vw, 42px);
+  font-weight: 900;
+  line-height: 1.12;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.trace-panel {
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.compact-head {
+  margin-bottom: 10px;
+}
+
+.trace-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.trace-step {
+  min-height: 108px;
+  padding: 12px;
+  border: 1px solid rgba(22, 112, 90, 0.18);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.trace-step strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--green);
+  font-size: 13px;
+}
+
+.trace-step p {
+  margin: 0;
+  color: #26332f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.output-block {
+  padding: 14px;
+  box-shadow: none;
+}
+
+.output-wide {
+  grid-column: 1 / -1;
+}
+
+.output-block p,
+.output-block li {
+  color: #26332f;
+  line-height: 1.65;
+}
+
+.output-block ol,
+.output-block ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.article-section {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.article-section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.article-section h4 {
+  margin: 0 0 7px;
+  font-size: 15px;
+}
+
+.article-section p {
+  margin: 0;
+}
+
+.title-style {
+  margin-bottom: 10px;
+}
+
+.title-style:last-child {
+  margin-bottom: 0;
+}
+
+.title-style span {
+  display: inline-block;
+  margin-bottom: 3px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.title-style strong {
+  display: block;
+  line-height: 1.45;
+}
+
+.title-style p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.rationale-block {
+  border-color: rgba(22, 112, 90, 0.24);
+  background: var(--green-soft);
+}
+
+.warning-block {
+  border-color: #f2c98d;
+  background: var(--amber-soft);
+}
+
+/* 内部写作指导栏目默认折叠 */
+.meta-block { display: none; }
+
+.result-toggle-wrap {
+  text-align: center;
+  margin-top: 10px;
+}
+.result-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: 1px dashed var(--muted);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.result-toggle:hover { border-color: var(--green); color: var(--green); }
+.result-toggle .toggle-arrow { transition: transform 0.25s; }
+.result-toggle.open .toggle-arrow { transform: rotate(180deg); }
+
+@media (max-width: 820px) {
+  .app-shell {
+    padding: 14px 12px 28px;
+  }
+
+  .workspace,
+  .result-grid,
+  .trace-list {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .material-list {
+    max-height: none;
+  }
+
+  .secondary-action {
+    width: 118px;
+  }
+}
+
+@media (max-width: 430px) {
+  .metric {
+    min-height: 64px;
+    padding: 10px 8px;
+  }
+
+  .metric span {
+    font-size: 20px;
+  }
+
+  .metric p {
+    font-size: 12px;
+  }
+
+  .compose-panel,
+  .material-panel,
+  .result-panel {
+    padding: 13px;
+  }
+
+  .section-head {
+    align-items: flex-start;
+  }
+
+/* ===== 日报卡片 ===== */
+.daily-card {
+  background: linear-gradient(135deg, #fff 0%, #f0f9f6 100%);
+  border: 1px solid #d8dfdc;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.daily-card-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.daily-card-header h2 {
+  font-size: 20px;
+  color: #0d3b2e;
+  margin-bottom: 4px;
+}
+.daily-card-header .dc-date {
+  font-size: 13px;
+  color: #66736f;
+}
+.daily-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.daily-card-stat {
+  text-align: center;
+  padding: 12px 8px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.daily-card-stat .stat-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: #16705a;
+}
+.daily-card-stat .stat-label {
+  font-size: 11px;
+  color: #66736f;
+  margin-top: 2px;
+}
+.daily-card-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.daily-card-cat {
+  font-size: 11px;
+  padding: 3px 10px;
+  background: #eaf6f1;
+  color: #0d3b2e;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.daily-card-footer {
+  text-align: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #d8dfdc;
+  font-size: 11px;
+  color: #66736f;
+}
+
+  .cover-preview {
+    min-height: 180px;
+    padding: 14px;
+  }
+
+  .trace-step {
+    min-height: 80px;
+    padding: 10px;
+  }
+}
+
+/* ===== Settings Overlay (共享) ===== */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+.settings-overlay[hidden] { display: none; }
+
+.settings-dialog {
+  width: min(92vw, 460px);
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.settings-dialog h3 {
+  margin: 0 0 18px;
+  font-size: 18px;
+}
+
+.setting-row {
+  margin-bottom: 14px;
+}
+.setting-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.setting-row input,
+.setting-row select {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+.setting-row input:focus,
+.setting-row select:focus {
+  border-color: #1976D2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+}
+.setting-row .hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.settings-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.btn-cancel,
+.btn-save {
+  min-height: 38px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border: 0;
+}
+.btn-cancel {
+  background: var(--surface-strong);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.btn-cancel:hover { opacity: 0.8; }
+.btn-save {
+  background: #1976D2;
+  color: #fff;
+}
+.btn-save:hover { background: #1565C0; }
+
+/* ===== Toast (共享) ===== */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 2000;
+  max-width: min(92vw, 420px);
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgba(26, 26, 46, 0.92);
+  color: #fff;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== 知识库管理面板 ===== */
+.kb-panel {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.kb-toggle {
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.kb-toggle:hover { background: var(--surface-strong); }
+.kb-toggle .arrow { transition: transform 180ms; font-size: 14px; color: var(--muted); }
+.kb-toggle.open .arrow { transform: rotate(180deg); }
+.kb-body { padding: 0 16px 16px; display: none; }
+.kb-body.open { display: block; }
+.kb-toolbar {
+  display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+}
+.kb-toolbar input {
+  flex: 1; min-width: 160px; height: 36px;
+  padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; outline: none;
+}
+.kb-toolbar input:focus { border-color: #1976D2; box-shadow: 0 0 0 3px rgba(25,118,210,0.12); }
+.kb-toolbar button {
+  min-height: 36px; padding: 0 14px; border: 0; border-radius: 8px;
+  background: #1976D2; color: #fff; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.kb-toolbar button:hover { background: #1565C0; }
+.kb-list { display: grid; gap: 8px; max-height: 400px; overflow: auto; }
+.kb-item {
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+}
+.kb-item-info { flex: 1; min-width: 0; }
+.kb-item-title { margin: 0 0 4px; font-size: 14px; font-weight: 800; }
+.kb-item-meta { font-size: 12px; color: var(--muted); }
+.kb-item-tags { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+.kb-item-tag {
+  display: inline-block; padding: 1px 7px; border-radius: 999px;
+  background: #E3F2FD; color: #1976D2; font-size: 11px; font-weight: 700;
+}
+.kb-item-delete {
+  min-width: 48px; height: 30px; border: 1px solid var(--red); border-radius: 6px;
+  background: var(--red-soft); color: var(--red); font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.kb-item-delete:hover { background: var(--red); color: #fff; }
+.kb-item-edit {
+  min-width: 48px; height: 30px; border: 1px solid var(--accent); border-radius: 6px;
+  background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.kb-item-edit:hover { background: var(--accent); color: #fff; }
+.kb-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.kb-empty { text-align: center; padding: 20px; color: var(--muted); font-size: 13px; }
+
+/* ===== 生成进度条 ===== */
+.gen-progress {
+  margin-top: 14px;
+  padding: 16px 20px;
+  background: #f6f9f8;
+  border-radius: 12px;
+  border: 1px solid rgba(22,112,90,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  overflow: hidden;
+}
+.gen-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  position: relative;
+}
+.gen-dot {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #dde5e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #889;
+  transition: all 0.4s ease;
+  position: relative;
+}
+.gen-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+.gen-label {
+  font-size: 11px;
+  color: #889;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+.gen-connector {
+  flex: 1 1 30px;
+  height: 2px;
+  background: #dde5e2;
+  min-width: 20px;
+  transition: background 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+.gen-connector.done {
+  background: var(--green);
+}
+.gen-connector.active {
+  background: #dde5e2;
+}
+.gen-connector.active::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent 0%, var(--green) 50%, transparent 100%);
+  animation: gen-flow 1.2s ease-in-out infinite;
+}
+@keyframes gen-flow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.gen-step.active .gen-dot {
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(22,112,90,0.4);
+  animation: gen-pulse 1.2s ease-in-out infinite;
+}
+.gen-step.active .gen-dot::after {
+  border-color: var(--green);
+  animation: gen-ring 1.2s ease-in-out infinite;
+}
+@keyframes gen-pulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+@keyframes gen-ring {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.4); }
+}
+.gen-step.active .gen-label {
+  color: var(--green);
+  font-weight: 700;
+}
+.gen-step.done .gen-dot {
+  background: var(--green);
+  color: #fff;
+}
+.gen-step.done .gen-label {
+  color: var(--green);
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="diagBar" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:#222;color:#0f0;font:11px monospace;padding:3px 8px;display:block;max-height:60px;overflow-y:auto;">diag: loading...</div>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">强安兴企</p>
+          <h1>安全园地图文助手</h1>
+        </div>
+        <button class="icon-button" id="resetBtn" title="清空当前草稿" aria-label="清空当前草稿">&#8634;</button>
+        <button class="icon-button" id="settingsBtn" title="API 设置" aria-label="API 设置">&#9881;</button>
+      </header>
+
+      <section class="metric-strip" aria-label="AI素材建议概览">
+        <div class="metric">
+          <span id="todayCount">0</span>
+          <p>可用素材</p>
+        </div>
+        <div class="metric">
+          <span id="sourceCount">0</span>
+          <p>来源渠道</p>
+        </div>
+        <div class="metric" id="reviewMetric" style="cursor:pointer;" title="点击查看待审核素材">
+          <span id="reviewCount">0</span>
+          <p>待审核</p>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="compose-panel">
+          <div class="section-head">
+            <h2>一句话生成图文</h2>
+            <span class="status-pill" id="statusPill">单机模式</span>
+          </div>
+
+          <label class="field-label" for="topicInput">告诉助手你要做什么主题</label>
+          <textarea
+            id="topicInput"
+            rows="4"
+            placeholder="例如：我要做一篇唐山大地震纪念日相关的安全园地图文，要求正面宣传、能吸引职工往下看"
+          ></textarea>
+
+          <div class="quick-tags" id="quickTags" aria-label="快捷主题"></div>
+
+          <div class="form-grid">
+            <label>
+              <span>对象</span>
+              <select id="audienceSelect">
+                <option value="一线职工">一线职工</option>
+                <option value="班组长">班组长</option>
+                <option value="青年职工">青年职工</option>
+                <option value="机关文职">机关文职</option>
+              </select>
+            </label>
+            <label>
+              <span>语气</span>
+              <select id="toneSelect">
+                <option value="接地气、稳妥">接地气、稳妥</option>
+                <option value="正式宣传">正式宣传</option>
+                <option value="温馨提醒">温馨提醒</option>
+                <option value="班前会口吻">班前会口吻</option>
+              </select>
+            </label>
+          </div>
+
+          <button class="primary-action" id="generateBtn">自动生成完整图文</button>
+          <div class="gen-progress" id="genProgress" hidden>
+            <div class="gen-step" data-step="0"><span class="gen-dot">1</span><span class="gen-label">分析主题</span></div>
+            <div class="gen-connector"></div>
+            <div class="gen-step" data-step="1"><span class="gen-dot">2</span><span class="gen-label">检索知识库</span></div>
+            <div class="gen-connector"></div>
+            <div class="gen-step" data-step="2"><span class="gen-dot">3</span><span class="gen-label">AI 生成中</span></div>
+            <div class="gen-connector"></div>
+            <div class="gen-step" data-step="3"><span class="gen-dot">4</span><span class="gen-label">智能配图</span></div>
+            <div class="gen-connector"></div>
+            <div class="gen-step" data-step="4"><span class="gen-dot">5</span><span class="gen-label">排版完成</span></div>
+          </div>
+        </div>
+
+        <div class="material-panel">
+          <div class="section-head">
+            <h2>自动参考素材</h2>
+            <div style="display:flex;gap:8px;">
+              <button class="text-button" id="fetchMaterialsBtn">获取安全素材</button>
+              <button class="text-button" id="exportDailyCardBtn">导出日报</button>
+              <button class="text-button" id="clearFilterBtn">全部</button>
+              <button class="text-button" id="exportMaterialsBtn">导出素材</button>
+              <button class="text-button" id="importMaterialsBtn">导入素材</button>
+            </div>
+          </div>
+
+          <input class="search-input" id="materialSearch" type="search" placeholder="可选：手动搜索安全、健康、工会、节日、党政等素材" />
+
+          <div class="tabs" id="categoryTabs" role="tablist"></div>
+          <div class="material-list" id="materialList"></div>
+        </div>
+      </section>
+
+      <section class="result-panel" id="resultPanel" hidden>
+        <div class="section-head result-head">
+          <div>
+            <p class="eyebrow">草稿预览</p>
+            <h2 id="resultMainTitle">图文稿</h2>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="secondary-action" id="copyBtn">复制全文</button>
+          </div>
+        </div>
+
+        <div class="trace-panel meta-block">
+          <div class="section-head compact-head">
+            <h3>智能拆解</h3>
+            <span class="status-pill">自动完成</span>
+          </div>
+          <div class="trace-list" id="traceList"></div>
+        </div>
+
+        <div class="result-grid">
+          <article class="output-block meta-block">
+            <h3>标题风格</h3>
+            <ol id="titleList"></ol>
+          </article>
+
+          <article class="output-block meta-block">
+            <h3>开头三句话</h3>
+            <p id="leadText"></p>
+          </article>
+
+          <article class="output-block output-wide">
+            <h3>正文结构</h3>
+            <div id="articleBody"></div>
+          </article>
+
+          <article class="output-block meta-block">
+            <h3>配图建议</h3>
+            <ul id="imagePlan"></ul>
+          </article>
+
+          <article class="output-block meta-block">
+            <h3>来源说明</h3>
+            <ul id="sourceList"></ul>
+          </article>
+
+          <article class="output-block output-wide rationale-block meta-block">
+            <h3>为什么这样写</h3>
+            <p id="rationaleText"></p>
+          </article>
+
+          <article class="output-block output-wide warning-block meta-block">
+            <h3>发布前审核</h3>
+            <ul id="reviewList"></ul>
+          </article>
+        </div>
+        <div class="result-toggle-wrap" id="resultToggleWrap" style="display:none;">
+          <button class="result-toggle" id="resultToggle" type="button">
+            查看写作思路 <span class="toggle-arrow">&#9660;</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- 知识库管理面板 -->
+    <section class="kb-panel" id="kbPanel">
+      <button class="kb-toggle" id="kbToggle" type="button">
+        知识库管理
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="kb-body" id="kbBody">
+        <div class="kb-toolbar">
+          <input type="text" id="kbSearch" placeholder="搜索知识库条目..." />
+          <button id="kbAddBtn" type="button">添加条目</button>
+        </div>
+        <div class="kb-list" id="kbList">
+          <div class="kb-empty">知识库为空，点击"添加条目"开始积累</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="settings-overlay" id="settingsOverlay" hidden>
+  <div class="settings-dialog">
+    <h3>API 设置</h3>
+    <div class="setting-row">
+      <label class="setting-label" for="brandSelect">模型品牌</label>
+      <select id="brandSelect"></select>
+    </div>
+    <div class="setting-row">
+      <label class="setting-label" for="modelSelect">具体模型</label>
+      <select id="modelSelect"></select>
+    </div>
+    <div class="setting-row">
+      <label class="setting-label" for="apiKeyInput">API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="输入 API Key" />
+    </div>
+    <div class="setting-row">
+      <label class="setting-label" for="baseUrlInput">Base URL</label>
+      <input type="text" id="baseUrlInput" placeholder="https://api.deepseek.com" />
+      <p class="hint">选择模型后自动填入默认地址，也可手动修改</p>
+    </div>
+    <div class="setting-row">
+      <label class="setting-label" for="pexelsKeyInput">Pexels API Key（选填，用于配图）</label>
+      <input type="password" id="pexelsKeyInput" placeholder="输入 Pexels API Key" />
+    </div>
+    <div class="settings-actions">
+      <button class="btn-cancel" id="settingsCancel">取消</button>
+      <button class="btn-save" id="settingsSave">保存</button>
+    </div>
+  </div>
+</div>
+
+    <script>
+      /* ================================================================
+         强安兴企安全园地图文助手 — 单文件版
+         前端直连 DeepSeek API，无需后端服务器
+         复制到手机浏览器打开即可使用
+         ================================================================ */
+
+      /* ================================================================
+   共享 JS — 模型配置、设置面板、API 调用、Pexels 配图
+   被 build.py 内联到各产品 HTML 中
+   ================================================================ */
+
+/* ---------- 模型配置（来源: OpenRouter 实时模型列表 2026-07-10）---------- */
+var MODEL_MAP = {
+  /* Amazon Nova */
+  "amazon/nova-2-lite-v1": { name: "Nova 2 Lite (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "amazon/nova-premier-v1": { name: "Nova Premier 1.0 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "amazon/nova-lite-v1": { name: "Nova Lite 1.0 (300K)", baseUrl: "https://openrouter.ai/api" },
+  "amazon/nova-pro-v1": { name: "Nova Pro 1.0 (300K)", baseUrl: "https://openrouter.ai/api" },
+  "amazon/nova-micro-v1": { name: "Nova Micro 1.0 (128K)", baseUrl: "https://openrouter.ai/api" },
+  /* Anthropic */
+  "anthropic/claude-fable-5": { name: "Claude Fable 5 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "anthropic/claude-opus-4.6": { name: "Claude Opus 4.6 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "anthropic/claude-opus-4.7": { name: "Claude Opus 4.7 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "anthropic/claude-opus-4.7-fast": { name: "Claude Opus 4.7 Fast (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "anthropic/claude-opus-4.8": { name: "Claude Opus 4.8 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "anthropic/claude-opus-4.8-fast": { name: "Claude Opus 4.8 Fast (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "anthropic/claude-sonnet-4": { name: "Claude Sonnet 4 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "anthropic/claude-sonnet-4.5": { name: "Claude Sonnet 4.5 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  /* Cohere */
+  "cohere/command-a": { name: "Command A (256K)", baseUrl: "https://openrouter.ai/api" },
+  "cohere/north-mini-code:free": { name: "North Mini Code (256K)", baseUrl: "https://openrouter.ai/api" },
+  "cohere/command-r-08-2024": { name: "Command R 08-2024 (128K)", baseUrl: "https://openrouter.ai/api" },
+  "cohere/command-r-plus-08-2024": { name: "Command R+ 08-2024 (128K)", baseUrl: "https://openrouter.ai/api" },
+  /* DeepSeek 直连（用你自己的 DS Key） */
+  "deepseek-chat":           { name: "V3 Chat [直连] (128K)", baseUrl: "https://api.deepseek.com" },
+  "deepseek-v4-flash":       { name: "V4 Flash [直连] (128K)", baseUrl: "https://api.deepseek.com" },
+  "deepseek-v4-pro":         { name: "V4 Pro [直连] (128K)", baseUrl: "https://api.deepseek.com" },
+  "deepseek-chat-v3.1":      { name: "V3.1 [直连] (128K)", baseUrl: "https://api.deepseek.com" },
+  "deepseek-r1-0528":        { name: "R1 0528 [直连] (128K)", baseUrl: "https://api.deepseek.com" },
+  /* DeepSeek - OpenRouter 中转 */
+  "deepseek/deepseek-v4-flash": { name: "V4 Flash (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "deepseek/deepseek-v4-pro": { name: "V4 Pro (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "deepseek/deepseek-chat-v3-0324": { name: "V3 0324 (163K)", baseUrl: "https://openrouter.ai/api" },
+  "deepseek/deepseek-chat-v3.1": { name: "V3.1 (163K)", baseUrl: "https://openrouter.ai/api" },
+  "deepseek/deepseek-v3.1-terminus": { name: "V3.1 Terminus (163K)", baseUrl: "https://openrouter.ai/api" },
+  "deepseek/deepseek-v3.2-exp": { name: "V3.2 Exp (163K)", baseUrl: "https://openrouter.ai/api" },
+  "deepseek/deepseek-r1": { name: "R1 (163K)", baseUrl: "https://openrouter.ai/api" },
+  "deepseek/deepseek-r1-0528": { name: "R1 0528 (163K)", baseUrl: "https://openrouter.ai/api" },
+  /* Google Gemini */
+  "google/gemini-2.5-flash": { name: "Gemini 2.5 Flash (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "google/gemini-2.5-flash-lite": { name: "Gemini 2.5 Flash Lite (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "google/gemini-2.5-pro": { name: "Gemini 2.5 Pro (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "google/gemini-3-flash-preview": { name: "Gemini 3 Flash Preview (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "google/gemini-3.1-flash-lite": { name: "Gemini 3.1 Flash Lite (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "google/gemma-4-26b-a4b-it": { name: "Gemma 4 26B (262K)", baseUrl: "https://openrouter.ai/api" },
+  "google/gemma-4-26b-a4b-it:free": { name: "Gemma 4 26B (262K)", baseUrl: "https://openrouter.ai/api" },
+  "google/gemma-3-4b-it": { name: "Gemma 3 4B (131K)", baseUrl: "https://openrouter.ai/api" },
+  /* Inflection */
+  "inflection/inflection-3-pi": { name: "Inflection 3 Pi (8K)", baseUrl: "https://openrouter.ai/api" },
+  "inflection/inflection-3-productivity": { name: "Inflection 3 Productivity (8K)", baseUrl: "https://openrouter.ai/api" },
+  /* Meta Llama */
+  "meta-llama/llama-4-scout": { name: "Llama 4 Scout (10M)", baseUrl: "https://openrouter.ai/api" },
+  "meta-llama/llama-4-maverick": { name: "Llama 4 Maverick (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "meta-llama/llama-3.1-70b-instruct": { name: "Llama 3.1 70B (131K)", baseUrl: "https://openrouter.ai/api" },
+  "meta-llama/llama-3.3-70b-instruct": { name: "Llama 3.3 70B (131K)", baseUrl: "https://openrouter.ai/api" },
+  /* MiniMax */
+  "minimax/minimax-m3": { name: "MiniMax M3 (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "minimax/minimax-01": { name: "MiniMax-01 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "minimax/minimax-m1": { name: "MiniMax M1 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "minimax/minimax-m2": { name: "MiniMax M2 (204K)", baseUrl: "https://openrouter.ai/api" },
+  "minimax/minimax-m2.1": { name: "MiniMax M2.1 (204K)", baseUrl: "https://openrouter.ai/api" },
+  "minimax/minimax-m2.5": { name: "MiniMax M2.5 (204K)", baseUrl: "https://openrouter.ai/api" },
+  "minimax/minimax-m2.7": { name: "MiniMax M2.7 (204K)", baseUrl: "https://openrouter.ai/api" },
+  "minimax/minimax-m2-her": { name: "MiniMax M2-her (65K)", baseUrl: "https://openrouter.ai/api" },
+  /* Mistral AI */
+  "mistralai/devstral-2512": { name: "Devstral 2 2512 (262K)", baseUrl: "https://openrouter.ai/api" },
+  "mistralai/ministral-14b-2512": { name: "Ministral 3 14B (262K)", baseUrl: "https://openrouter.ai/api" },
+  "mistralai/mistral-large-2512": { name: "Mistral Large 3 (262K)", baseUrl: "https://openrouter.ai/api" },
+  "mistralai/mistral-medium-3-5": { name: "Mistral Medium 3.5 (262K)", baseUrl: "https://openrouter.ai/api" },
+  "mistralai/mistral-small-2603": { name: "Mistral Small 4 (262K)", baseUrl: "https://openrouter.ai/api" },
+  "mistralai/codestral-2508": { name: "Codestral 2508 (256K)", baseUrl: "https://openrouter.ai/api" },
+  "mistralai/mistral-large-2407": { name: "Mistral Large 2407 (131K)", baseUrl: "https://openrouter.ai/api" },
+  "mistralai/mistral-medium-3": { name: "Mistral Medium 3 (131K)", baseUrl: "https://openrouter.ai/api" },
+  /* 月之暗面 Kimi */
+  "moonshotai/kimi-k2-0905": { name: "Kimi K2 0905 (262K)", baseUrl: "https://openrouter.ai/api" },
+  "moonshotai/kimi-k2-thinking": { name: "Kimi K2 Thinking (262K)", baseUrl: "https://openrouter.ai/api" },
+  "moonshotai/kimi-k2.5": { name: "Kimi K2.5 (262K)", baseUrl: "https://openrouter.ai/api" },
+  "moonshotai/kimi-k2.6": { name: "Kimi K2.6 (262K)", baseUrl: "https://openrouter.ai/api" },
+  "moonshotai/kimi-k2.7-code": { name: "Kimi K2.7 Code (262K)", baseUrl: "https://openrouter.ai/api" },
+  "moonshotai/kimi-k2": { name: "Kimi K2 0711 (131K)", baseUrl: "https://openrouter.ai/api" },
+  /* NVIDIA Nemotron */
+  "nvidia/nemotron-3-super-120b-a12b": { name: "Nemotron 3 Super (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "nvidia/nemotron-3-ultra-550b-a55b": { name: "Nemotron 3 Ultra (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": { name: "Nemotron 3 Nano Omni (256K)", baseUrl: "https://openrouter.ai/api" },
+  "nvidia/llama-3.3-nemotron-super-49b-v1.5": { name: "Llama 3.3 Nemotron 49B (131K)", baseUrl: "https://openrouter.ai/api" },
+  "nvidia/nemotron-nano-9b-v2:free": { name: "Nemotron Nano 9B V2 (128K)", baseUrl: "https://openrouter.ai/api" },
+  /* OpenAI */
+  "openai/gpt-5.4": { name: "GPT-5.4 (1050K)", baseUrl: "https://openrouter.ai/api" },
+  "openai/gpt-5.4-pro": { name: "GPT-5.4 Pro (1050K)", baseUrl: "https://openrouter.ai/api" },
+  "openai/gpt-5.5": { name: "GPT-5.5 (1050K)", baseUrl: "https://openrouter.ai/api" },
+  "openai/gpt-5.5-pro": { name: "GPT-5.5 Pro (1050K)", baseUrl: "https://openrouter.ai/api" },
+  "openai/gpt-5.6-luna": { name: "GPT-5.6 Luna (1050K)", baseUrl: "https://openrouter.ai/api" },
+  "openai/gpt-5.6-luna-pro": { name: "GPT-5.6 Luna Pro (1050K)", baseUrl: "https://openrouter.ai/api" },
+  "openai/gpt-5.6-sol": { name: "GPT-5.6 Sol (1050K)", baseUrl: "https://openrouter.ai/api" },
+  "openai/gpt-5.6-sol-pro": { name: "GPT-5.6 Sol Pro (1050K)", baseUrl: "https://openrouter.ai/api" },
+  /* Perplexity */
+  "perplexity/sonar-pro": { name: "Sonar Pro (200K)", baseUrl: "https://openrouter.ai/api" },
+  "perplexity/sonar-pro-search": { name: "Sonar Pro Search (200K)", baseUrl: "https://openrouter.ai/api" },
+  "perplexity/sonar-deep-research": { name: "Sonar Deep Research (128K)", baseUrl: "https://openrouter.ai/api" },
+  "perplexity/sonar-reasoning-pro": { name: "Sonar Reasoning Pro (128K)", baseUrl: "https://openrouter.ai/api" },
+  "perplexity/sonar": { name: "Sonar (127K)", baseUrl: "https://openrouter.ai/api" },
+  /* 阿里通义 Qwen */
+  "qwen/qwen3-coder": { name: "Qwen3 Coder 480B (1048K)", baseUrl: "https://openrouter.ai/api" },
+  "qwen/qwen-plus-2025-07-28": { name: "Qwen Plus 0728 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "qwen/qwen-plus-2025-07-28:thinking": { name: "Qwen Plus 0728 Thinking (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "qwen/qwen-plus": { name: "Qwen-Plus (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "qwen/qwen3-coder-flash": { name: "Qwen3 Coder Flash (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "qwen/qwen3-coder-plus": { name: "Qwen3 Coder Plus (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "qwen/qwen3.5-plus-02-15": { name: "Qwen3.5 Plus (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "qwen/qwq-plus": { name: "QwQ Plus (1000K)", baseUrl: "https://openrouter.ai/api" },
+  /* xAI Grok */
+  "x-ai/grok-4.20": { name: "Grok 4.20 (2000K)", baseUrl: "https://openrouter.ai/api" },
+  "x-ai/grok-4.20-multi-agent": { name: "Grok 4.20 Multi-Agent (2000K)", baseUrl: "https://openrouter.ai/api" },
+  "x-ai/grok-4.3": { name: "Grok 4.3 (1000K)", baseUrl: "https://openrouter.ai/api" },
+  "x-ai/grok-4.5": { name: "Grok 4.5 (500K)", baseUrl: "https://openrouter.ai/api" },
+  "x-ai/grok-build-0.1": { name: "Grok Build 0.1 (256K)", baseUrl: "https://openrouter.ai/api" }
+};
+
+/* 品牌分组 */
+var MODEL_BRANDS = [
+  { name: "DeepSeek",     models: ["deepseek-chat","deepseek-v4-flash","deepseek-v4-pro","deepseek-chat-v3.1","deepseek-r1-0528","deepseek/deepseek-v4-flash","deepseek/deepseek-v4-pro","deepseek/deepseek-chat-v3-0324","deepseek/deepseek-chat-v3.1","deepseek/deepseek-v3.1-terminus","deepseek/deepseek-v3.2-exp","deepseek/deepseek-r1","deepseek/deepseek-r1-0528"] },
+  { name: "OpenAI",       models: ["openai/gpt-5.6-luna","openai/gpt-5.6-luna-pro","openai/gpt-5.6-sol","openai/gpt-5.6-sol-pro","openai/gpt-5.5","openai/gpt-5.5-pro","openai/gpt-5.4","openai/gpt-5.4-pro"] },
+  { name: "Anthropic",    models: ["anthropic/claude-opus-4.8","anthropic/claude-opus-4.8-fast","anthropic/claude-opus-4.7","anthropic/claude-opus-4.7-fast","anthropic/claude-opus-4.6","anthropic/claude-sonnet-4.5","anthropic/claude-sonnet-4","anthropic/claude-fable-5"] },
+  { name: "Google Gemini",models: ["google/gemini-3.1-flash-lite","google/gemini-3-flash-preview","google/gemini-2.5-pro","google/gemini-2.5-flash","google/gemini-2.5-flash-lite","google/gemma-4-26b-a4b-it"] },
+  { name: "xAI Grok",     models: ["x-ai/grok-4.20","x-ai/grok-4.20-multi-agent","x-ai/grok-4.5","x-ai/grok-4.3","x-ai/grok-build-0.1"] },
+  { name: "Meta Llama",   models: ["meta-llama/llama-4-scout","meta-llama/llama-4-maverick","meta-llama/llama-3.3-70b-instruct","meta-llama/llama-3.1-70b-instruct"] },
+  { name: "阿里通义 Qwen",  models: ["qwen/qwen3-coder","qwen/qwen3-coder-plus","qwen/qwen3-coder-flash","qwen/qwen-plus-2025-07-28","qwen/qwen-plus-2025-07-28:thinking","qwen/qwen-plus","qwen/qwen3.5-plus-02-15","qwen/qwq-plus"] },
+  { name: "月之暗面 Kimi",  models: ["moonshotai/kimi-k2.7-code","moonshotai/kimi-k2.6","moonshotai/kimi-k2.5","moonshotai/kimi-k2-0905","moonshotai/kimi-k2-thinking","moonshotai/kimi-k2"] },
+  { name: "Mistral AI",   models: ["mistralai/mistral-medium-3-5","mistralai/mistral-small-2603","mistralai/mistral-large-2512","mistralai/devstral-2512","mistralai/codestral-2508","mistralai/ministral-14b-2512"] },
+  { name: "MiniMax",      models: ["minimax/minimax-m3","minimax/minimax-01","minimax/minimax-m1","minimax/minimax-m2.7","minimax/minimax-m2.5","minimax/minimax-m2.1","minimax/minimax-m2"] },
+  { name: "NVIDIA Nemotron",models: ["nvidia/nemotron-3-ultra-550b-a55b","nvidia/nemotron-3-super-120b-a12b","nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free","nvidia/llama-3.3-nemotron-super-49b-v1.5"] },
+  { name: "Amazon Nova",  models: ["amazon/nova-premier-v1","amazon/nova-2-lite-v1","amazon/nova-pro-v1","amazon/nova-lite-v1","amazon/nova-micro-v1"] },
+  { name: "Perplexity",   models: ["perplexity/sonar-deep-research","perplexity/sonar-reasoning-pro","perplexity/sonar-pro","perplexity/sonar-pro-search","perplexity/sonar"] },
+  { name: "Cohere",       models: ["cohere/command-a","cohere/command-r-plus-08-2024","cohere/command-r-08-2024","cohere/north-mini-code:free"] },
+  { name: "Inflection",   models: ["inflection/inflection-3-productivity","inflection/inflection-3-pi"] }
+];
+
+/* 兼容旧的 MODEL_BASE_URLS */
+var MODEL_BASE_URLS = {};
+Object.keys(MODEL_MAP).forEach(function(k) { MODEL_BASE_URLS[k] = MODEL_MAP[k].baseUrl; });
+
+/* ---------- 默认配置 ---------- */
+// 注意：OpenRouter 需要独立的 API Key（openrouter.ai → 注册免费获取 $1 额度）
+// 旧 DeepSeek Key 仅限 api.deepseek.com 直连使用
+var DEFAULT_API_KEY  = ""; /* 请在设置面板中填写你的 API Key */
+var DEFAULT_MODEL    = "deepseek-chat";
+var DEFAULT_BASE_URL = "https://api.deepseek.com";
+
+/* 根据 model ID 找品牌 */
+function getBrandForModel(modelId) {
+  for (var i = 0; i < MODEL_BRANDS.length; i++) {
+    if (MODEL_BRANDS[i].models.indexOf(modelId) !== -1) return MODEL_BRANDS[i];
+  }
+  return MODEL_BRANDS[0];
+}
+
+/* ---------- 全局状态 ---------- */
+window.DS_API_KEY     = localStorage.getItem("ds_api_key")     || DEFAULT_API_KEY;
+window.DS_MODEL       = localStorage.getItem("ds_model")       || DEFAULT_MODEL;
+window.DS_BASE_URL    = localStorage.getItem("ds_base_url")    || DEFAULT_BASE_URL;
+window.PEXELS_API_KEY = localStorage.getItem("pexels_api_key") || "";
+
+/* ---------- 工具函数 ---------- */
+function showToast(msg) {
+  var toast = document.getElementById("toast");
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(function() {
+    toast.classList.remove("show");
+  }, 1800);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function getApiBase() {
+  return (window.DS_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+}
+
+function getApiKey() {
+  return window.DS_API_KEY || DEFAULT_API_KEY;
+}
+
+/* ---------- Pexels 配图 ---------- */
+function fetchPexelsImages(keywords) {
+  if (!keywords || !keywords.length) return Promise.resolve([]);
+  var apiKey = window.PEXELS_API_KEY;
+  if (!apiKey) return Promise.resolve([]);
+
+  return Promise.all(keywords.map(function(kw) {
+    return fetch("https://api.pexels.com/v1/search?query=" + encodeURIComponent(kw) + "&per_page=1", {
+      headers: { "Authorization": apiKey }
+    }).then(function(resp) {
+      if (!resp.ok) return null;
+      return resp.json();
+    }).then(function(data) {
+      if (data && data.photos && data.photos.length) {
+        return {
+          keyword: kw,
+          url: data.photos[0].src.medium,
+          photographer: data.photos[0].photographer
+        };
+      }
+      return null;
+    }).catch(function() { return null; });
+  })).then(function(results) {
+    return results.filter(Boolean);
+  });
+}
+
+function injectPexelsImages(html, pexelsResults) {
+  if (!html || !pexelsResults || !pexelsResults.length) return html;
+  var result = html;
+  pexelsResults.forEach(function(img) {
+    var imgTag = '<img src="' + img.url + '" alt="' + escapeHtml(img.keyword || '配图') + '" style="max-width:100%;border-radius:8px;margin:12px 0;" loading="lazy" />' +
+      '<p style="font-size:11px;color:#999;text-align:center;">Photo by ' + escapeHtml(img.photographer || 'Pexels') + ' on Pexels</p>';
+    var hintMarker = "<div class='img-hint'>";
+    var idx = result.indexOf(hintMarker);
+    if (idx !== -1) {
+      var endIdx = result.indexOf("</div>", idx);
+      if (endIdx !== -1) {
+        result = result.substring(0, idx) + imgTag + result.substring(endIdx + 6);
+      }
+    }
+  });
+  return result;
+}
+
+/* ---------- 设置面板 ---------- */
+function initSettings() {
+  var els = {
+    settingsOverlay: document.getElementById("settingsOverlay"),
+    settingsBtn: document.getElementById("settingsBtn"),
+    settingsCancel: document.getElementById("settingsCancel"),
+    settingsSave: document.getElementById("settingsSave"),
+    brandSelect: document.getElementById("brandSelect"),
+    modelSelect: document.getElementById("modelSelect"),
+    apiKeyInput: document.getElementById("apiKeyInput"),
+    baseUrlInput: document.getElementById("baseUrlInput"),
+    pexelsKeyInput: document.getElementById("pexelsKeyInput")
+  };
+
+  if (!els.settingsBtn || !els.settingsOverlay) return;
+
+  // 读取当前设置
+  if (els.apiKeyInput) els.apiKeyInput.value = window.DS_API_KEY || "";
+  if (els.baseUrlInput) els.baseUrlInput.value = window.DS_BASE_URL || DEFAULT_BASE_URL;
+  if (els.pexelsKeyInput) els.pexelsKeyInput.value = window.PEXELS_API_KEY || "";
+
+  // ---- 两级模型选择器 ----
+  var savedModel = window.DS_MODEL || DEFAULT_MODEL;
+  var savedBrand = getBrandForModel(savedModel);
+
+  // 填充品牌下拉
+  if (els.brandSelect) {
+    els.brandSelect.innerHTML = "";
+    MODEL_BRANDS.forEach(function(brand) {
+      var opt = document.createElement("option");
+      opt.value = brand.name;
+      opt.textContent = brand.name;
+      els.brandSelect.appendChild(opt);
+    });
+    els.brandSelect.value = savedBrand.name;
+  }
+
+  // 品牌切换 → 刷新模型列表
+  function populateModels(brandName) {
+    if (!els.modelSelect) return;
+    els.modelSelect.innerHTML = "";
+    var brand = null;
+    for (var i = 0; i < MODEL_BRANDS.length; i++) {
+      if (MODEL_BRANDS[i].name === brandName) { brand = MODEL_BRANDS[i]; break; }
+    }
+    if (!brand) return;
+    brand.models.forEach(function(modelId) {
+      var info = MODEL_MAP[modelId];
+      if (!info) return;
+      var opt = document.createElement("option");
+      opt.value = modelId;
+      opt.textContent = info.name;
+      els.modelSelect.appendChild(opt);
+    });
+    // 如果当前保存的模型属于该品牌，选中它；否则选第一个
+    if (savedModel && brand.models.indexOf(savedModel) !== -1) {
+      els.modelSelect.value = savedModel;
+    } else {
+      els.modelSelect.value = brand.models[0];
+    }
+    // 更新 Base URL
+    updateBaseUrl();
+  }
+
+  function updateBaseUrl() {
+    if (!els.modelSelect || !els.baseUrlInput) return;
+    var modelId = els.modelSelect.value;
+    var info = MODEL_MAP[modelId];
+    if (info && info.baseUrl) els.baseUrlInput.value = info.baseUrl;
+  }
+
+  if (els.brandSelect) {
+    els.brandSelect.addEventListener("change", function() {
+      savedModel = null; // 切换品牌后不再记住旧模型
+      populateModels(els.brandSelect.value);
+    });
+    // 初始填充
+    populateModels(savedBrand.name);
+  }
+
+  if (els.modelSelect && els.baseUrlInput) {
+    els.modelSelect.addEventListener("change", updateBaseUrl);
+  }
+
+  // 打开设置面板
+  els.settingsBtn.addEventListener("click", function() {
+    // 打开时重新同步品牌
+    var curModel = window.DS_MODEL || DEFAULT_MODEL;
+    var curBrand = getBrandForModel(curModel);
+    if (els.brandSelect) els.brandSelect.value = curBrand.name;
+    savedModel = curModel;
+    populateModels(curBrand.name);
+    els.settingsOverlay.hidden = false;
+  });
+
+  // 关闭
+  els.settingsCancel.addEventListener("click", function() {
+    els.settingsOverlay.hidden = true;
+  });
+
+  // 保存
+  els.settingsSave.addEventListener("click", function() {
+    var newKey = els.apiKeyInput ? els.apiKeyInput.value.trim() : "";
+    var newModel = els.modelSelect ? els.modelSelect.value : DEFAULT_MODEL;
+    var newBaseUrl = els.baseUrlInput ? els.baseUrlInput.value.trim() : "";
+    var newPexelsKey = els.pexelsKeyInput ? els.pexelsKeyInput.value.trim() : "";
+
+    if (newKey) {
+      localStorage.setItem("ds_api_key", newKey);
+      window.DS_API_KEY = newKey;
+    } else {
+      localStorage.removeItem("ds_api_key");
+      window.DS_API_KEY = DEFAULT_API_KEY;
+    }
+
+    localStorage.setItem("ds_model", newModel);
+    window.DS_MODEL = newModel;
+
+    if (newBaseUrl) {
+      localStorage.setItem("ds_base_url", newBaseUrl);
+      window.DS_BASE_URL = newBaseUrl;
+    } else {
+      localStorage.removeItem("ds_base_url");
+      window.DS_BASE_URL = DEFAULT_BASE_URL;
+    }
+
+    if (newPexelsKey) {
+      localStorage.setItem("pexels_api_key", newPexelsKey);
+      window.PEXELS_API_KEY = newPexelsKey;
+    } else {
+      localStorage.removeItem("pexels_api_key");
+      window.PEXELS_API_KEY = "";
+    }
+    els.settingsOverlay.hidden = true;
+    showToast("API 设置已保存");
+  });
+}
+
+      /* ========== 全局状态 & DOM 绑定 ========== */
+      var state = { activeCategory: "全部", selectedMaterialId: null, reviewFilter: false };
+
+      var els = {
+        topicInput: document.getElementById("topicInput"),
+        generateBtn: document.getElementById("generateBtn"),
+        copyBtn: document.getElementById("copyBtn"),
+        resetBtn: document.getElementById("resetBtn"),
+        materialSearch: document.getElementById("materialSearch"),
+        materialList: document.getElementById("materialList"),
+        categoryTabs: document.getElementById("categoryTabs"),
+        clearFilterBtn: document.getElementById("clearFilterBtn"),
+        reviewMetric: document.getElementById("reviewMetric"),
+        quickTags: document.getElementById("quickTags"),
+        audienceSelect: document.getElementById("audienceSelect"),
+        toneSelect: document.getElementById("toneSelect"),
+        resultPanel: document.getElementById("resultPanel"),
+        resultMainTitle: document.getElementById("resultMainTitle"),
+        coverTitle: document.getElementById("coverTitle"),
+        traceList: document.getElementById("traceList"),
+        titleList: document.getElementById("titleList"),
+        leadText: document.getElementById("leadText"),
+        articleBody: document.getElementById("articleBody"),
+        imagePlan: document.getElementById("imagePlan"),
+        sourceList: document.getElementById("sourceList"),
+        rationaleText: document.getElementById("rationaleText"),
+        reviewList: document.getElementById("reviewList"),
+        statusPill: document.getElementById("statusPill"),
+        todayCount: document.getElementById("todayCount"),
+        sourceCount: document.getElementById("sourceCount"),
+        reviewCount: document.getElementById("reviewCount"),
+        settingsBtn: document.getElementById("settingsBtn"),
+        settingsOverlay: document.getElementById("settingsOverlay"),
+        dsApiKeyInput: document.getElementById("dsApiKeyInput"),
+        dsModelSelect: document.getElementById("dsModelSelect"),
+        dsBaseUrlInput: document.getElementById("dsBaseUrlInput"),
+        pexelsApiKeyInput: document.getElementById("pexelsApiKeyInput"),
+        exportDailyCardBtn: document.getElementById("exportDailyCardBtn"),
+        dsBrandSelect: document.getElementById("dsBrandSelect")
+      };
+
+      /* ========== 素材数据（localStorage缓存优先，有效期15天） ========== */
+      var MATERIALS_LS_KEY = "huanxing_materials_cache";
+      var MATERIALS_CACHE_DAYS = 30;
+
+      function loadMaterialsFromCache() {
+        try {
+          var raw = localStorage.getItem(MATERIALS_LS_KEY);
+          if (!raw) return null;
+          var cached = JSON.parse(raw);
+          if (!cached.materials || !cached.savedAt) return null;
+          var age = Date.now() - cached.savedAt;
+          if (age > MATERIALS_CACHE_DAYS * 24 * 60 * 60 * 1000) return null;
+          return cached.materials;
+        } catch(e) { return null; }
+      }
+
+      function saveMaterialsToCache(mats) {
+        try {
+          localStorage.setItem(MATERIALS_LS_KEY, JSON.stringify({
+            materials: mats,
+            savedAt: Date.now()
+          }));
+        } catch(e) { console.warn("localStorage写入失败:", e); }
+      }
+
+      var cachedMats = loadMaterialsFromCache();
+      var materials = cachedMats || [];
+
+      var categories = ["全部"];
+      var seen = {};
+      materials.forEach(function(m) {
+        if (!seen[m.category]) { seen[m.category] = true; categories.push(m.category); }
+      });
+
+      var quickTags = [];
+
+      /* 首次使用预置种子数据 */
+      function seedKB() {
+        KBManager.getAllArticles().then(function(items) {
+          if (items && items.length > 0) return;
+          var seeds = [
+            { title: "矿山安全生产方针与法规", content: "矿山安全生产坚持\"安全第一、预防为主、综合治理\"方针。严格执行《安全生产法》《矿山安全法》等法律法规，落实企业主体责任，建立健全安全生产责任制和操作规程。", category: "法规制度", tags: ["安全生产", "法规", "方针"] },
+            { title: "瓦斯防治与通风管理", content: "瓦斯爆炸是矿山重大危险源之一。必须加强通风管理，确保风量充足、风流稳定。严格执行瓦斯检查制度，瓦斯超限必须立即撤人。推广瓦斯抽采利用技术，实现\"先抽后采、监测监控、以风定产\"。", category: "灾害防治", tags: ["瓦斯", "通风", "爆炸"] },
+            { title: "顶板管理与支护技术", content: "顶板事故是矿山常见事故类型。必须加强顶板监测，落实敲帮问顶制度。推广锚杆、锚索、液压支架等先进支护技术。采掘工作面必须制定专项顶板管理措施。", category: "灾害防治", tags: ["顶板", "支护", "锚杆"] },
+            { title: "机电运输安全要点", content: "机电设备必须定期检修维护，严禁带病运转。提升运输系统必须装设可靠的安全保护装置。电气设备必须符合防爆要求，严禁非防爆设备下井。严格执行停送电制度和挂牌管理制度。", category: "设备管理", tags: ["机电", "运输", "防爆"] },
+            { title: "职业健康与劳动防护", content: "矿山作业人员必须佩戴符合标准的劳动防护用品，包括安全帽、防尘口罩、自救器等。定期开展职业健康体检，建立健康监护档案。加强粉尘治理，推广湿式作业和综合防尘措施。", category: "职业健康", tags: ["防护", "健康", "职业病"] }
+          ];
+          var chain = Promise.resolve();
+          seeds.forEach(function(seed) {
+            chain = chain.then(function() { return KBManager.addArticle(seed); });
+          });
+          return chain;
+        }).then(function() {
+          refreshKB();
+        }).catch(function(e) { console.warn("种子数据添加失败:", e); });
+      }
+
+            /* ========== 获取安全素材（动态搜索） ========== */
+
+      function classifyText(text, source) {
+        text = text.toLowerCase();
+        if (text.indexOf("职业健康") !== -1 || text.indexOf("职业病") !== -1 || text.indexOf("尘肺") !== -1 || text.indexOf("体检") !== -1) return "职业健康";
+        if (text.indexOf("班组") !== -1 || text.indexOf("班组长") !== -1 || text.indexOf("培训") !== -1 || text.indexOf("技能") !== -1 || text.indexOf("竞赛") !== -1) return "班组建设";
+        if (text.indexOf("工会") !== -1 || text.indexOf("安康杯") !== -1 || text.indexOf("职工") !== -1) return "工会劳动保护";
+        if (text.indexOf("智能化") !== -1 || text.indexOf("智慧矿山") !== -1 || text.indexOf("5g") !== -1 || text.indexOf("vr") !== -1 || text.indexOf("数字化") !== -1) return "智慧矿山";
+        if (text.indexOf("防汛") !== -1 || text.indexOf("雨季") !== -1 || text.indexOf("防暑") !== -1 || text.indexOf("高温") !== -1) return "季节性安全";
+        if (text.indexOf("事故") !== -1 || text.indexOf("隐患") !== -1 || text.indexOf("排查") !== -1 || text.indexOf("整治") !== -1 || text.indexOf("专项") !== -1) return "隐患排查";
+        if (text.indexOf("标准化") !== -1 || text.indexOf("达标") !== -1) return "标准化建设";
+        if (text.indexOf("救援") !== -1 || text.indexOf("应急") !== -1 || text.indexOf("预案") !== -1) return "应急救援";
+        if (text.indexOf("瓦斯") !== -1 || text.indexOf("水害") !== -1 || text.indexOf("冲击地压") !== -1 || text.indexOf("顶板") !== -1) return "灾害防治";
+        if (text.indexOf("法规") !== -1 || text.indexOf("法律") !== -1 || text.indexOf("条例") !== -1 || text.indexOf("意见") !== -1 || text.indexOf("规划") !== -1) return "政策法规";
+        return "综合安全";
+      }
+      function extractTags(title, summary) {
+        var text = title + " " + summary;
+        var tags = [];
+        if (text.indexOf("矿山") !== -1 || text.indexOf("煤矿") !== -1) tags.push("矿山安全");
+        if (text.indexOf("安全") !== -1) tags.push("安全生产");
+        if (text.indexOf("唐山") !== -1 || text.indexOf("河北") !== -1 || text.indexOf("开滦") !== -1) tags.push("河北/唐山");
+        if (text.indexOf("班组") !== -1 || text.indexOf("班组长") !== -1) tags.push("班组");
+        if (text.indexOf("职业健康") !== -1 || text.indexOf("职业病") !== -1) tags.push("职业健康");
+        if (text.indexOf("工会") !== -1 || text.indexOf("安康杯") !== -1) tags.push("工会");
+        return tags.slice(0, 3);
+      }
+
+      function fetchTodayMaterials() {
+        var btn = document.getElementById("fetchMaterialsBtn");
+        btn.disabled = true;
+        btn.textContent = "加载中...";
+        var todayISO = new Date().toISOString().slice(0, 10);
+
+        /* ===== 从 GitHub Gist raw URL 拉取云端抓取的 JSON 数据 ===== */
+        var GIST_RAW_URL = "https://gist.githubusercontent.com/Good-n1ght/360b3e9ec81bfee6765883cbb0da7aec/raw/safety_news.json";
+        var url = GIST_RAW_URL + "?_t=" + Date.now();
+
+        fetch(url).then(function(r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        }).then(function(data) {
+          var rawItems = data.items || [];
+          if (rawItems.length === 0) {
+            throw new Error("云端暂无安全新闻数据");
+          }
+
+          /* 去重：按标准化标题 */
+          var deduped = [];
+          var seenTitles = {};
+          for (var q = 0; q < rawItems.length; q++) {
+            var norm = (rawItems[q].title || "").replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "").toLowerCase().substring(0, 20);
+            if (!seenTitles[norm]) {
+              seenTitles[norm] = true;
+              deduped.push(rawItems[q]);
+            }
+          }
+
+          var items = [];
+          for (var s = 0; s < deduped.length; s++) {
+            var d = deduped[s];
+            var catText = d.title + " " + (d.summary || "");
+            /* 优先使用 JSON 中的 category/tags，缺失时用本地 classifyText/extractTags 生成 */
+            items.push({
+              id: "dy" + (s + 1),
+              title: d.title || "",
+              source: d.source || "",
+              sourceUrl: d.link || d.sourceUrl || "",
+              publishedAt: d.publishedAt || todayISO,
+              summary: d.summary || "",
+              category: d.category || classifyText(catText, d.source || ""),
+              tags: (d.tags && d.tags.length) ? d.tags : extractTags(d.title, d.summary || ""),
+              review: (d.review === true)
+            });
+          }
+
+          /* 累积合并：旧库 + 新抓取，标题去重 */
+          var oldMats = loadMaterialsFromCache() || [];
+          var existingTitles = {};
+          oldMats.forEach(function(om) { existingTitles[om.title] = true; });
+          var freshItems = items.filter(function(it) { return !existingTitles[it.title]; });
+          materials = oldMats.concat(freshItems);
+          categories = ["全部"];
+          var seenCat = {};
+          materials.forEach(function(m2) {
+            if (!seenCat[m2.category]) {
+              seenCat[m2.category] = true;
+              categories.push(m2.category);
+            }
+          });
+          quickTags = materials.slice(0, 6).map(function(m3) {
+            return "我要做一篇" + m3.title.substring(0, 30) + "相关的安全园地图文";
+          });
+          state.activeCategory = "全部";
+          renderMetrics();
+          renderQuickTags();
+          renderTabs();
+          renderMaterials();
+          saveMaterialsToCache(materials);
+
+          showToast("已从云端抓取 " + items.length + " 条，新增 " + freshItems.length + " 条，累积 " + materials.length + " 条");
+          btn.disabled = false;
+          btn.textContent = "获取安全素材";
+        }).catch(function(err) {
+          showToast("抓取失败：" + (err.message || "网络错误"));
+          btn.disabled = false;
+          btn.textContent = "获取安全素材";
+          console.warn("fetchTodayMaterials 失败:", err);
+        });
+      }
+
+
+            /* ========== 导出日报卡片 ========== */
+      function exportDailyCard() {
+        var today = getCurrentDateStr();
+        var todayISO = new Date().toISOString().slice(0, 10);
+        var totalCount = materials.length;
+        var reviewCount = materials.filter(function(m) { return m.review; }).length;
+        var catMap = {};
+        materials.forEach(function(m) {
+          catMap[m.category] = (catMap[m.category] || 0) + 1;
+        });
+        var catNames = Object.keys(catMap);
+
+        var card = document.createElement("div");
+        card.style.cssText = "width:600px;padding:32px 28px;background:linear-gradient(135deg,#fff 0%,#f0f9f6 100%);font-family:'Microsoft YaHei','PingFang SC',sans-serif;border-radius:0;position:fixed;left:-9999px;top:0;";
+        card.innerHTML =
+          '<div style="text-align:center;margin-bottom:20px;">' +
+            '<h2 style="font-size:22px;color:#0d3b2e;margin:0 0 4px;">安全园地 · 每日素材日报</h2>' +
+            '<div style="font-size:13px;color:#66736f;">' + today + '</div>' +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">' +
+            '<div style="text-align:center;padding:14px 8px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);"><div style="font-size:30px;font-weight:800;color:#16705a;">' + totalCount + '</div><div style="font-size:11px;color:#66736f;margin-top:2px;">可用素材</div></div>' +
+            '<div style="text-align:center;padding:14px 8px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);"><div style="font-size:30px;font-weight:800;color:#16705a;">' + catNames.length + '</div><div style="font-size:11px;color:#66736f;margin-top:2px;">分类</div></div>' +
+            '<div style="text-align:center;padding:14px 8px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);"><div style="font-size:30px;font-weight:800;color:#b42318;">' + reviewCount + '</div><div style="font-size:11px;color:#66736f;margin-top:2px;">待审核</div></div>' +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px;">' +
+            catNames.map(function(c) {
+              return '<span style="font-size:11px;padding:3px 10px;background:#eaf6f1;color:#0d3b2e;border-radius:12px;font-weight:600;">' + c + '（' + catMap[c] + '）</span>';
+            }).join("") +
+          '</div>' +
+          '<div style="text-align:center;padding-top:12px;border-top:1px solid #d8dfdc;font-size:11px;color:#66736f;">强安兴企 · 职工安全宣传 | 工会宣</div>';
+        document.body.appendChild(card);
+
+        html2canvas(card, { scale: 2, useCORS: true, backgroundColor: null, logging: false }).then(function(canvas) {
+          document.body.removeChild(card);
+          var link = document.createElement("a");
+          link.download = "安全园地日报_" + todayISO + ".png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+          showToast("日报卡片已保存");
+        }).catch(function(err) {
+          document.body.removeChild(card);
+          console.warn("日报导出失败:", err);
+          showToast("导出失败，请重试");
+        });
+      }
+
+      /* ========== 素材导入导出 ========== */
+
+      function exportMaterials() {
+        var exportData = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          count: materials.length,
+          materials: materials
+        };
+        var jsonStr = JSON.stringify(exportData, null, 2);
+        var blob = new Blob([jsonStr], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        var todayISO = new Date().toISOString().slice(0, 10);
+        a.download = "安全园地素材_" + todayISO + ".json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("已导出 " + materials.length + " 条素材");
+      }
+
+      function importMaterials() {
+        var input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".json";
+        input.addEventListener("change", function(e) {
+          var file = e.target.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              var raw = JSON.parse(e.target.result);
+              var importItems;
+              if (Array.isArray(raw)) {
+                importItems = raw;
+              } else if (raw.materials && Array.isArray(raw.materials)) {
+                importItems = raw.materials;
+              } else {
+                showToast("文件格式不正确：缺少 materials 数组");
+                return;
+              }
+              // 校验每条素材至少包含 title、category、summary
+              var invalid = importItems.filter(function(item) {
+                return !item.title || !item.category || !item.summary;
+              });
+              if (invalid.length > 0) {
+                showToast("有 " + invalid.length + " 条素材缺少必填字段（title/category/summary），请检查后重试");
+                return;
+              }
+              if (importItems.length === 0) {
+                showToast("文件中没有有效素材");
+                return;
+              }
+              var merged = confirm("找到 " + importItems.length + " 条素材。\n\n" +
+                "【确定】= 去重合并（按标题判断，保留现有素材，新增不重复的）\n" +
+                "【取消】= 直接替换全部现有素材\n\n" +
+                "请选择导入方式：");
+              if (merged) {
+                // 去重合并：用标题（trim + 小写）判断重复
+                var existingTitles = new Set(
+                  materials.map(function(m) { return m.title.trim().toLowerCase(); })
+                );
+                var newItems = importItems.filter(function(item) {
+                  return !existingTitles.has((item.title || "").trim().toLowerCase());
+                });
+                // 给新素材分配唯一 ID
+                var maxId = Math.max.apply(null, materials.map(function(m) { return parseInt(m.id, 10) || 0; }));
+                newItems.forEach(function(item, idx) {
+                  if (!item.id) item.id = String(maxId + idx + 1);
+                  if (!item.review) item.review = false;
+                  if (!item.tags) item.tags = [];
+                  if (!item.source) item.source = "";
+                  if (!item.publishedAt) item.publishedAt = "";
+                });
+                materials = materials.concat(newItems);
+                showToast("已合并 " + newItems.length + " 条新素材（跳过 " + (importItems.length - newItems.length) + " 条重复）");
+              } else {
+                // 直接替换
+                materials = importItems.map(function(item, idx) {
+                  return {
+                    id: item.id || String(idx + 1),
+                    title: item.title || "",
+                    source: item.source || "",
+                    sourceUrl: item.sourceUrl || item.url || "",
+                    publishedAt: item.publishedAt || "",
+                    summary: item.summary || "",
+                    category: item.category || "",
+                    tags: item.tags || [],
+                    review: !!item.review
+                  };
+                });
+                showToast("已导入 " + importItems.length + " 条素材（替换原有数据）");
+              }
+              // 刷新分类、缓存和 UI
+              categories = ["全部"];
+              var seen = {};
+              materials.forEach(function(m) {
+                if (!seen[m.category]) { seen[m.category] = true; categories.push(m.category); }
+              });
+              saveMaterialsToCache(materials);
+              renderMetrics();
+              renderTabs();
+              renderMaterials();
+            } catch (err) {
+              console.warn("导入素材失败:", err);
+              showToast("JSON 解析失败，请检查文件格式");
+            }
+          };
+          reader.readAsText(file);
+        });
+        input.click();
+      }
+
+      /* ========== 初始化 ========== */
+
+      function init() {
+        console.log("=== INIT START ===");
+        renderMetrics();
+        renderQuickTags();
+        renderTabs();
+        renderMaterials();
+        bindEvents();
+        bindKBEvents();
+        seedKB();
+        initSettings();
+      }
+
+      function renderMetrics() {
+        var uniqueSources = new Set(materials.map(function(item) { return item.source.split(" / ")[0]; }));
+        els.todayCount.textContent = materials.length;
+        els.sourceCount.textContent = uniqueSources.size;
+        els.reviewCount.textContent = materials.filter(function(item) { return item.review; }).length;
+      }
+
+      function renderQuickTags() {
+        els.quickTags.innerHTML = quickTags
+          .map(function(tag) { return '<button class="chip" type="button" data-topic="' + escapeHtml(tag) + '">' + escapeHtml(tag) + '</button>'; })
+          .join("");
+      }
+
+      function renderTabs() {
+        els.categoryTabs.innerHTML = categories
+          .map(function(category) {
+            var active = state.activeCategory === category ? " active" : "";
+            return '<button class="tab' + active + '" type="button" data-category="' + escapeHtml(category) + '">' + escapeHtml(category) + '</button>';
+          })
+          .join("");
+      }
+
+      function getFilteredMaterials() {
+        var keyword = els.materialSearch.value.trim().toLowerCase();
+        return materials.filter(function(item) {
+          var byCategory = state.activeCategory === "全部" || item.category === state.activeCategory;
+          var byReview = !state.reviewFilter || item.review === true;
+          var searchable = [item.title, item.source, item.summary, item.category].concat(item.tags).join(" ").toLowerCase();
+          return byCategory && byReview && (!keyword || searchable.indexOf(keyword) !== -1);
+        });
+      }
+
+      function renderMaterials() {
+        var filtered = getFilteredMaterials();
+        if (!filtered.length) {
+          els.materialList.innerHTML = '<div class="material-item"><p class="material-title">没有匹配素材</p><p class="material-summary">换一个关键词或分类。</p></div>';
+          return;
+        }
+
+        els.materialList.innerHTML = filtered
+          .map(function(item) {
+            var selected = state.selectedMaterialId === item.id ? " selected" : "";
+            return '<button class="material-item' + selected + '" type="button" data-material-id="' + item.id + '">' +
+              '<div class="material-meta">' +
+                '<span class="badge">' + escapeHtml(item.category) + '</span>' +
+                (item.review ? '<span class="badge" style="background:#fef2f2;color:#b42318;font-weight:600;">待审</span>' : '') +
+                '<span class="source-name">' + escapeHtml(item.publishedAt) + '</span>' +
+              '</div>' +
+              '<p class="material-title">' + escapeHtml(item.title) + '</p>' +
+              '<p class="material-summary">' + escapeHtml(item.summary) + '</p>' +
+              '<p class="source-name">' + (item.sourceUrl ? '<a href="' + escapeHtml(item.sourceUrl) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + escapeHtml(item.source) + '</a>' : escapeHtml(item.source)) + '</p>' +
+            '</button>';
+          })
+          .join("");
+      }
+
+      function bindEvents() {
+        console.log("=== BIND EVENTS START ===");
+        els.quickTags.addEventListener("click", function(event) {
+          var btn = event.target.closest("[data-topic]");
+          if (!btn) return;
+          els.topicInput.value = btn.dataset.topic;
+        });
+        console.log("bound: quickTags");
+
+        els.categoryTabs.addEventListener("click", function(event) {
+          var btn = event.target.closest("[data-category]");
+          if (!btn) return;
+          state.activeCategory = btn.dataset.category;
+          renderTabs();
+          renderMaterials();
+        });
+        console.log("bound: categoryTabs");
+
+        els.clearFilterBtn.addEventListener("click", function() {
+          state.activeCategory = "全部";
+          state.reviewFilter = false;
+          els.materialSearch.value = "";
+          els.reviewMetric.classList.remove("review-active");
+          renderTabs();
+          renderMaterials();
+        });
+        console.log("bound: clearFilterBtn");
+
+        els.reviewMetric.addEventListener("click", function() {
+          state.reviewFilter = !state.reviewFilter;
+          if (state.reviewFilter) {
+            els.reviewMetric.classList.add("review-active");
+            state.activeCategory = "全部";
+            renderTabs();
+          } else {
+            els.reviewMetric.classList.remove("review-active");
+          }
+          renderMaterials();
+        });
+        console.log("bound: reviewMetric");
+
+        els.materialSearch.addEventListener("input", renderMaterials);
+        console.log("bound: materialSearch");
+
+        els.materialList.addEventListener("click", function(event) {
+          var btn = event.target.closest("[data-material-id]");
+          if (!btn) return;
+          state.selectedMaterialId = btn.dataset.materialId;
+          var material = materials.find(function(item) { return item.id === state.selectedMaterialId; });
+          if (material) {
+            els.topicInput.value = material.title;
+          }
+          renderMaterials();
+        });
+        console.log("bound: materialList");
+
+        els.generateBtn.addEventListener("click", function() { generateDraft(); });
+        els.copyBtn.addEventListener("click", copyDraft);
+        els.resetBtn.addEventListener("click", resetDraft);
+        console.log("bound: generateBtn/copyBtn/resetBtn");
+
+        var fetchMaterialsBtn = document.getElementById("fetchMaterialsBtn");
+        if (fetchMaterialsBtn) {
+          fetchMaterialsBtn.addEventListener("click", fetchTodayMaterials);
+        }
+        console.log("bound: fetchMaterialsBtn");
+
+        var exportDailyCardBtn = document.getElementById("exportDailyCardBtn");
+        if (exportDailyCardBtn) {
+          exportDailyCardBtn.addEventListener("click", exportDailyCard);
+        }
+        console.log("bound: exportDailyCardBtn");
+
+        var exportMaterialsBtn = document.getElementById("exportMaterialsBtn");
+        if (exportMaterialsBtn) {
+          exportMaterialsBtn.addEventListener("click", exportMaterials);
+        }
+        console.log("bound: exportMaterialsBtn");
+
+        var importMaterialsBtn = document.getElementById("importMaterialsBtn");
+        if (importMaterialsBtn) {
+          importMaterialsBtn.addEventListener("click", importMaterials);
+        }
+        console.log("bound: importMaterialsBtn");
+        console.log("=== BIND EVENTS DONE ===");
+
+      }
+
+      /* ========== 核心：生成图文草稿 ========== */
+
+      function generateDraft() {
+        if (!getApiKey()) {
+          showToast("请先在设置面板中填写 API Key");
+          els.settingsBtn.click();
+          return;
+        }
+        var topic = els.topicInput.value.trim();
+        if (!topic) {
+          showToast("先输入一个主题，或点选近期素材。");
+          els.topicInput.focus();
+          return;
+        }
+
+        els.generateBtn.disabled = true;
+        els.generateBtn.textContent = "正在生成...";
+
+        var selected = materials.find(function(item) { return item.id === state.selectedMaterialId; });
+        var related = pickRelatedMaterials(topic, selected);
+        var audience = els.audienceSelect.value;
+        var tone = els.toneSelect.value;
+        var scenario = detectScenario(topic);
+
+        setStatus("AI 生成中");
+        showProgress();
+
+        // 全局安全网：60秒后无论如何都恢复
+        var safetyStart = Date.now();
+        var safetyTimer = setInterval(function() {
+          if (Date.now() - safetyStart > 60000) {
+            clearInterval(safetyTimer);
+            doFallback();
+          }
+        }, 2000);
+
+        function doFallback() {
+          if (els.generateBtn.textContent === "自动生成完整图文") return;
+          clearInterval(safetyTimer);
+          hideProgress();
+          setStatus("超时回退");
+          showToast("请求超时，已回退本地生成");
+          try {
+            var draft = buildDraft(topic, related);
+            renderDraft(draft);
+            if (els.resultPanel) { els.resultPanel.removeAttribute("hidden"); els.resultPanel.style.display = "block"; }
+          } catch(e) { console.warn("回退渲染失败:", e); }
+          clearSafety();
+              els.generateBtn.disabled = false;
+          els.generateBtn.textContent = "自动生成完整图文";
+        }
+
+        function clearSafety() { clearInterval(safetyTimer); }
+
+        // 检索知识库（带5秒超时保护）
+        stepProgress(0);
+        var kbTimeout = new Promise(function(_, reject) {
+          setTimeout(function() { reject(new Error("KB_TIMEOUT")); }, 5000);
+        });
+        Promise.race([KBManager.searchArticles(topic), kbTimeout]).then(function(kbResults) {
+          var kbContext = null;
+          if (kbResults && kbResults.length) {
+            kbContext = kbResults.map(function(item) {
+              return "---\n标题：" + item.title + "\n分类：" + item.category + "\n内容：" + item.content + (item.tags && item.tags.length ? "\n标签：" + item.tags.join("、") : "");
+            }).join("\n\n");
+          }
+
+          stepProgress(1);
+          return callDeepSeekDraft({
+            topic: topic,
+            audience: audience,
+            tone: tone,
+            scenario: scenario,
+            materials: related,
+            kbContext: kbContext
+          }).then(function(draft) {
+            stepProgress(2);
+            setStatus("AI 生成");
+            // Pexels 配图
+            return fetchPexelsImages(draft.images || []).then(function(pexelsResults) {
+              stepProgress(3);
+              if (pexelsResults && pexelsResults.length) {
+                draft.content = injectPexelsImages(draft.content, pexelsResults);
+              }
+              renderAiDraft(draft);
+              els.resultPanel.hidden = false;
+              els.resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+              stepProgress(4);
+              setTimeout(hideProgress, 800);
+              clearSafety();
+              els.generateBtn.disabled = false;
+              els.generateBtn.textContent = "自动生成完整图文";
+            });
+          }).catch(function(err) {
+            console.warn("DeepSeek 请求失败，回退本地:", (err && err.message) || err);
+            showToast((err && err.message) || "网络请求失败，已回退本地生成");
+            hideProgress();
+            setStatus("回退本地");
+
+            var draft = buildDraft(topic, related);
+            renderDraft(draft);
+            if (els.resultPanel) { els.resultPanel.removeAttribute("hidden"); els.resultPanel.style.display = "block"; }
+            if (els.resultPanel) els.resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+            clearSafety();
+              els.generateBtn.disabled = false;
+            els.generateBtn.textContent = "自动生成完整图文";
+          });
+        }).catch(function() {
+          // KB 不可用时降级
+          return callDeepSeekDraft({
+            topic: topic,
+            audience: audience,
+            tone: tone,
+            scenario: scenario,
+            materials: related,
+            kbContext: null
+          }).then(function(draft) {
+            setStatus("AI 生成");
+            return fetchPexelsImages(draft.images || []).then(function(pexelsResults) {
+              if (pexelsResults && pexelsResults.length) {
+                draft.content = injectPexelsImages(draft.content, pexelsResults);
+              }
+              renderAiDraft(draft);
+              els.resultPanel.hidden = false;
+              els.resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+              clearSafety();
+              els.generateBtn.disabled = false;
+              els.generateBtn.textContent = "自动生成完整图文";
+            });
+          }).catch(function(err) {
+            console.warn("DeepSeek 请求失败，回退本地:", (err && err.message) || err);
+            showToast((err && err.message) || "网络请求失败，已回退本地生成");
+            hideProgress();
+            setStatus("回退本地");
+            var draft = buildDraft(topic, related);
+            renderDraft(draft);
+            if (els.resultPanel) { els.resultPanel.removeAttribute("hidden"); els.resultPanel.style.display = "block"; }
+            if (els.resultPanel) els.resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+            clearSafety();
+              els.generateBtn.disabled = false;
+            els.generateBtn.textContent = "自动生成完整图文";
+          });
+        });
+      }
+
+      /* ========== 直连 DeepSeek API ========== */
+
+      function getCurrentDateStr() {
+        return new Date().toLocaleDateString("zh-CN", {
+          year: "numeric", month: "long", day: "numeric", weekday: "long"
+        });
+      }
+
+      function buildAISystemPrompt(kbContext) {
+        var base = "你是一个服务国企工会和煤矿安全宣传的资深图文编辑。你的任务是为\u201C强安兴企安全园地\u201D撰写一篇完整的、供人工审核后使用的安全教育图文草稿。\n\n核心要求：\n1. 输出严格 JSON，包含 title、coverDesc、content、images、reviews 五个字段\n2. title：一个让人想点进去看的标题，不低俗不标题党，但要抓人眼球\n3. coverDesc：封面图描述（1-2句话，描述适合做什么样的封面图）\n4. content：正文，用 HTML 片段格式输出。必须达到 800-1500 字。结构要求：\n   - 开头：用真实案例/数据/场景切入（2-3段），让读者感觉这事跟自己有关\n   - 正文：至少 4-5 个小节（用 h3 标签），每节 150-300 字。结构是「问题是什么 → 为什么危险 → 怎么做才对 → 做完这一步下一步该做什么」，把安全提醒变成可操作的具体步骤\n   - 结尾：落到行动，告诉读者「现在就去检查XX」「今天下班前做XX」，不要喊口号\n   - 不要只写\"注意安全\"\"加强管理\"，要写具体的操作指引\n5. images：配图搜索关键词数组（3-5个英文关键词，用于 Pexels 搜图，如 \"coal mine safety helmet\"]\n6. reviews：发布前审核提醒数组（1-2条）\n7. 不要出现\u201C开头三句话\u201D\u201C标题风格\u201D\u201C智能拆解\u201D\u201C为什么这样写\u201D等元信息\n8. 宣传口径要稳妥，党政/重大纪念日/灾害/健康都要正面宣传\n9. 不编造领导行程、未确认会议、未给出的数据\n10. 健康类只做科普提醒，不做诊断治疗建议\n11. 语言要接地气，像老师傅跟工友聊天，不要官八股\\n12. 这是供人工审核后使用的图文草稿，不可直接发布";
+        if (!kbContext) return base + "\n\nJSON 格式：\n{\"title\":\"文章标题\",\"coverDesc\":\"封面图描述\",\"content\":\"<p>开头勾人段落</p><h3>小标题</h3><p>正文段落</p><p>结尾段落</p>\",\"images\":[\"keyword1\",\"keyword2\",\"keyword3\"],\"reviews\":[\"审核提醒1\",\"审核提醒2\"]}";
+        return base + "\n\n【知识库参考材料】以下是本地知识库中与当前主题相关的已存档内容，请在撰写时参考引用：\n" + kbContext + "\n\nJSON 格式：\n{\"title\":\"文章标题\",\"coverDesc\":\"封面图描述\",\"content\":\"<p>开头勾人段落</p><h3>小标题</h3><p>正文段落</p><p>结尾段落</p>\",\"images\":[\"keyword1\",\"keyword2\",\"keyword3\"],\"reviews\":[\"审核提醒1\",\"审核提醒2\"]}";
+      }
+
+      function buildAIUserPrompt(params) {
+        var topic = params.topic;
+        var audience = params.audience;
+        var tone = params.tone;
+        var currentDate = getCurrentDateStr();
+
+        var prompt = "当前日期：" + currentDate + "\n\n" +
+          "请根据以下用户的需求，生成一篇 800-1500 字的完整安全园地文章，包含 4-5 个小节，每个小节要有：问题分析 + 具体操作步骤 + 下一步指引。结尾要有明确的行动号召。\n\n" +
+          "用户需求：" + topic + "\n" +
+          "读者对象：" + audience + "\n" +
+          "语气要求：" + tone;
+
+        prompt += "\n\n请直接输出 JSON，不要输出任何其他内容。";
+
+        return prompt;
+      }
+
+      function callDeepSeekDraft(params) {
+        var systemPrompt = buildAISystemPrompt(params.kbContext || null);
+        var userPrompt = buildAIUserPrompt(params);
+        var startTime = Date.now();
+        var TIMEOUT_MS = 15000;
+
+        return new Promise(function(resolve, reject) {
+          var done = false;
+          var timerId = setInterval(function() {
+            if (!done && (Date.now() - startTime) > TIMEOUT_MS) {
+              done = true;
+              clearInterval(timerId);
+              reject(new Error("AI 请求超时（15秒），已自动回退本地生成"));
+            }
+          }, 1000);
+
+          fetch(window.DS_BASE_URL.replace(/\/+$/, "") + "/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + window.DS_API_KEY
+            },
+            body: JSON.stringify({
+              model: window.DS_MODEL,
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt }
+              ],
+              response_format: { type: "json_object" },
+              temperature: 0.7,
+              max_tokens: 3600,
+              stream: false
+            })
+          }).then(function(response) {
+            return response.json().then(function(payload) {
+            if (!done) {
+              done = true;
+              clearInterval(timerId);
+              if (!response.ok) {
+                throw new Error((payload && payload.error && payload.error.message) || ("DeepSeek HTTP " + response.status));
+              }
+              var content = payload && payload.choices && payload.choices[0] && payload.choices[0].message && payload.choices[0].message.content;
+              if (!content) {
+                throw new Error("DeepSeek 返回内容为空");
+              }
+              resolve(normalizeModelDraft(parseJsonContent(content), params));
+            }
+          }).catch(function(err) {
+            if (!done) {
+              done = true;
+              clearInterval(timerId);
+              reject(err);
+            }
+          });
+        }).catch(function(err) {
+          if (!done) {
+            done = true;
+            clearInterval(timerId);
+            var msg = (err && err.message) || String(err);
+            // 识别 CORS / 网络错误，给出更明确的提示
+            if (msg.indexOf("Failed to fetch") !== -1 || msg.indexOf("NetworkError") !== -1 || msg.indexOf("fetch") !== -1) {
+              msg = "网络请求被拦截（CORS / 跨域限制），可尝试用 http-server 打开本页面";
+            }
+            reject(new Error(msg));
+          }
+        });
+      });
+      }
+
+      function parseJsonContent(content) {
+        var trimmed = content.trim();
+        try {
+          return JSON.parse(trimmed);
+        } catch (e) {
+          var match = trimmed.match(/\{[\s\S]*\}/);
+          if (!match) throw new Error("模型未返回可解析 JSON");
+          return JSON.parse(match[0]);
+        }
+      }
+
+      function cleanModelText(value) {
+        return String(value == null ? "" : value).replace(/\s+/g, " ").trim();
+      }
+
+      function normalizeTrace(value) {
+        if (!Array.isArray(value)) return null;
+        var rows = value
+          .map(function(item) { return { label: cleanModelText(item && item.label), value: cleanModelText(item && item.value) }; })
+          .filter(function(item) { return item.label && item.value; })
+          .slice(0, 4);
+        return rows.length ? rows : null;
+      }
+
+      function normalizeTitle(value) {
+        if (!value || typeof value !== "object") return null;
+        var title = cleanModelText(value.title);
+        if (!title) return null;
+        return {
+          style: cleanModelText(value.style) || "推荐标题",
+          title: title,
+          reason: cleanModelText(value.reason) || "适合当前主题。"
+        };
+      }
+
+      function normalizeTitles(value) {
+        if (!Array.isArray(value)) return null;
+        var rows = value.map(normalizeTitle).filter(Boolean).slice(0, 3);
+        return rows.length ? rows : null;
+      }
+
+      function normalizeSections(value) {
+        if (!Array.isArray(value)) return null;
+        var rows = value
+          .map(function(item) { return { heading: cleanModelText(item && item.heading), text: cleanModelText(item && item.text) }; })
+          .filter(function(item) { return item.heading && item.text; })
+          .slice(0, 5);
+        return rows.length ? rows : null;
+      }
+
+      function normalizeStringArray(value) {
+        if (!Array.isArray(value)) return null;
+        var rows = value.map(cleanModelText).filter(Boolean).slice(0, 8);
+        return rows.length ? rows : null;
+      }
+
+      function normalizeSources(value, fallback) {
+        var sourceRows = Array.isArray(value) ? value : fallback;
+        var rows = sourceRows
+          .map(function(item) {
+            return {
+              source: cleanModelText(item && item.source) || "公开资料",
+              title: cleanModelText(item && item.title) || "待补充来源标题",
+              publishedAt: cleanModelText(item && item.publishedAt) || "待核验",
+              sourceUrl: cleanModelText(item && item.sourceUrl) || ""
+            };
+          })
+          .filter(function(item) { return item.source || item.title; })
+          .slice(0, 8);
+        return rows.length ? rows : null;
+      }
+
+      function makeLocalDraft(topic, audience, scenario, materialsArr) {
+        return {
+          title: topic.slice(0, 26) || "安全园地图文稿",
+          coverDesc: "建议使用安全园地通用封面模板，突出" + topic.slice(0, 15) + "主题",
+          content: "<p>安全是企业的生命线，更是每个职工家庭的幸福基石。今天，我们聚焦" + topic.slice(0, 20) + "，一起把安全意识变成日常习惯。</p><h3>为什么要关注这个话题</h3><p>对" + audience + "来说，" + topic.slice(0, 20) + "与日常工作和安全息息相关。把风险想在前面，把隐患查在前面，才能真正守住安全底线。</p><h3>应该注意什么</h3><p>从班前确认开始，把规范操作落实到每一步。多看一眼、多问一句、多守一道关，安全才能有保障。</p><h3>把提醒变成行动</h3><p>今天就开始：班前多确认一步，现场多提醒一句，发现隐患及时报告。安全不是口号，是每天都要做到的细节。</p>",
+          images: ["coal mine safety", "workplace safety", "team meeting"],
+          reviews: ["发布前人工审核事实和口径。"]
+        };
+      }
+
+      function normalizeModelDraft(raw, context) {
+        var localFallback = makeLocalDraft(context.topic, context.audience, context.scenario, context.materials);
+        return {
+          title: cleanModelText(raw.title) || localFallback.title,
+          coverDesc: cleanModelText(raw.coverDesc) || localFallback.coverDesc,
+          content: cleanModelText(raw.content) || localFallback.content,
+          images: normalizeStringArray(raw.images) || localFallback.images,
+          reviews: normalizeStringArray(raw.reviews) || localFallback.reviews,
+          sources: (context.materials || []).map(function(m) {
+            return { source: m.source, title: m.title, publishedAt: m.publishedAt || "", sourceUrl: m.sourceUrl || "" };
+          })
+        };
+      }
+
+      /* ========== 本地规则生成（降级兜底） ========== */
+
+      function pickRelatedMaterials(topic, selected) {
+        var topicLower = topic.toLowerCase();
+        var scored = materials.map(function(item) {
+          var score = (selected && selected.id === item.id) ? 6 : 0;
+          item.tags.forEach(function(tag) {
+            if (topicLower.indexOf(tag.toLowerCase()) !== -1) score += 3;
+          });
+          if (topic.indexOf("地震") !== -1 && item.tags.indexOf("防灾减灾") !== -1) score += 4;
+          if (topic.indexOf("饮酒") !== -1 && item.tags.indexOf("饮酒") !== -1) score += 4;
+          if (topic.indexOf("高温") !== -1 && item.tags.indexOf("高温") !== -1) score += 4;
+          if (topic.indexOf("会议") !== -1 && item.tags.indexOf("集团会议") !== -1) score += 4;
+          if (topic.indexOf("安全") !== -1 && item.tags.indexOf("安全生产") !== -1) score += 2;
+          return { item: item, score: score };
+        });
+
+        return scored
+          .sort(function(a, b) { return b.score - a.score; })
+          .filter(function(entry, index) { return entry.score > 0 || index < 3; })
+          .slice(0, 4)
+          .map(function(entry) { return entry.item; });
+      }
+
+      function buildDraft(topic, related) {
+        var audience = els.audienceSelect.value || "一线职工";
+        var scenario = detectScenario(topic);
+        var tone = els.toneSelect ? els.toneSelect.value : "班组提醒";
+        var flags = detectFlags(topic, related);
+        var selected = related.length ? related[0] : null;
+
+        function buildContent(scenario, audience, tone) {
+          var s = makeSections(topic, scenario, audience, tone);
+          return s.map(function(sec) {
+            return '<h4>' + escapeHtml(sec.heading) + '</h4><p>' + escapeHtml(sec.text) + '</p>';
+          }).join("");
+        }
+
+        return {
+          mainTitle: {
+            title: topic.slice(0, 26) || "安全园地图文稿",
+            style: "本地生成",
+            reason: "AI 不可用时由规则引擎生成"
+          },
+          trace: makeTrace(topic, scenario, related, flags),
+          titles: makeTitles(topic, scenario),
+          lead: makeLead(topic, scenario, audience),
+          sections: makeSections(topic, scenario, audience, tone),
+          images: makeImagePlan(topic, scenario),
+          sources: selected ? [
+            { source: selected.source, title: selected.title, publishedAt: selected.publishedAt || "待核验", sourceUrl: selected.sourceUrl || selected.url || "" }
+          ] : [{ source: "本地知识库", title: "安全园地通用素材", publishedAt: "待核验", sourceUrl: "" }],
+          rationale: makeRationale(scenario, audience),
+          reviews: makeReviewItems(flags, related)
+        };
+      }
+
+      function detectScenario(topic) {
+        if (/地震|防灾|减灾|应急/.test(topic)) return "disaster";
+        if (/饮酒|油腻|心脑血管|健康|春节|中秋|国庆/.test(topic)) return "health";
+        if (/高温|防暑|疲劳|夜班/.test(topic)) return "heat";
+        if (/会议|讲话|集团|党委|精神/.test(topic)) return "meeting";
+        if (/工会|班组|劳模|工匠|产业工人/.test(topic)) return "union";
+        return "safety";
+      }
+
+      function makeTitles(topic, scenario) {
+        var map = {
+          disaster: [
+            { style: "稳妥正式版", title: "铭记历史守初心 立足岗位保安全", reason: "适合对外发布，政治口径稳，适合重大纪念日。" },
+            { style: "职工爱看版", title: "唐山人为什么要反复讲安全？", reason: "从职工生活和城市记忆切入，更容易点进去看。" },
+            { style: "班前会提醒版", title: "班前多确认一步，岗位多一分平安", reason: "能直接落到班组、岗位和当天安全提醒。" }
+          ],
+          health: [
+            { style: "温馨提醒版", title: "节日聚餐别大意 这份健康提醒请收好", reason: "不吓人、不说教，更像工会关怀。" },
+            { style: "职工爱看版", title: "一顿酒一顿油，可能影响的不只是身体", reason: "从生活场景切入，点击欲望更强。" },
+            { style: "返岗安全版", title: "守住健康底线 才能守好岗位安全", reason: "把健康提醒自然转到安全生产。" }
+          ],
+          heat: [
+            { style: "实用提醒版", title: "高温天气别硬扛 防暑安全要跟上", reason: "直给重点，适合手机端快速阅读。" },
+            { style: "职工爱看版", title: "井上下职工请注意 这几件事不能忽视", reason: "有对象、有问题，更容易吸引一线职工。" },
+            { style: "正式宣传版", title: "防暑降温做到位 安全生产有保障", reason: "适合发布在正式栏目和班前提醒中。" }
+          ],
+          meeting: [
+            { style: "学习贯彻版", title: "把会议精神落到岗位安全行动上", reason: "不空喊学习，直接落到岗位执行。" },
+            { style: "正式宣传版", title: "学精神 抓落实 守牢安全生产底线", reason: "适合集团会议、党委部署类素材。" },
+            { style: "职工理解版", title: "从部署到行动 每个岗位都要接得住", reason: "把会议语言转成职工能理解的行动语言。" }
+          ],
+          union: [
+            { style: "班组建设版", title: "把班组建强 把安全抓实", reason: "主题清楚，能和班组安全文化结合。" },
+            { style: "青年职工版", title: "在岗位上成长 在安全中建功", reason: "适合写技能提升、岗位成才和劳动竞赛。" },
+            { style: "正式宣传版", title: "弘扬劳模精神 凝聚安全生产力量", reason: "适合劳模工匠、先进人物、工会活动。" }
+          ],
+          safety: [
+            { style: "职工爱看版", title: "安全不是口号 是每天都要做到的细节", reason: "口语化，适合移动端阅读。" },
+            { style: "班前会提醒版", title: "多看一眼 多问一句 多守一道关", reason: "短、实、容易转成班前会口径。" },
+            { style: "正式宣传版", title: "把风险想在前 把隐患查在前", reason: "适合安全生产月、隐患排查等主题。" }
+          ]
+        };
+        var titles = map[scenario] || map.safety;
+        // 在首位插入一个基于用户主题的动态标题
+        titles = [{ style: "主题直出版", title: topic, reason: "直接使用你输入的主题作为标题，最大程度保留你的意图。" }].concat(titles);
+        return titles;
+      }
+
+      function makeTrace(topic, scenario, related, flags) {
+        var scenarioMap = {
+          disaster: "重大纪念日 / 防灾减灾 / 岗位安全责任",
+          health: "职工健康 / 节日关怀 / 返岗安全",
+          heat: "高温天气 / 防暑降温 / 疲劳风险",
+          meeting: "会议精神 / 学习贯彻 / 岗位落实",
+          union: "工会职工 / 班组建设 / 技能提升",
+          safety: "安全提醒 / 隐患排查 / 现场执行"
+        };
+        var policyMap = {
+          disaster: "人民至上、生命至上；防灾减灾救灾；安全生产治本攻坚",
+          health: "人民至上、生命至上；工会服务职工；节日安全提醒",
+          heat: "安全生产治本攻坚；职业健康；班组互保联保",
+          meeting: "党委部署；集团重点工作；安全生产责任落实",
+          union: "产业工人队伍建设；劳模精神；班组安全文化",
+          safety: "安全生产治本攻坚；岗位标准作业；隐患排查治理"
+        };
+        var sourceNames = related.slice(0, 3).map(function(item) { return item.source.split(" / ")[0]; }).join("、") || "权威公开资料";
+        var riskLevel = flags.politics || flags.disaster || flags.internal ? "较高，需人工审核" : flags.health ? "中等，需核对健康来源" : "常规，发布前校对";
+
+        return [
+          { label: "主题识别", value: scenarioMap[scenario] || scenarioMap.safety },
+          { label: "宣传口径", value: policyMap[scenario] || policyMap.safety },
+          { label: "资料来源", value: "优先参考：" + sourceNames },
+          { label: "审核等级", value: riskLevel }
+        ];
+      }
+
+      function makeLead(topic, scenario, audience) {
+        var map = {
+          disaster: "有些日子值得反复回望，不是为了停留在过去，而是为了把安全意识刻进今天的岗位里。对每一名职工来说，防灾减灾不是远处的大事，而是班前确认、规范操作、应急准备里的具体行动。",
+          health: "节日聚餐、人情往来、作息变化，最容易让人放松对健康和安全的警惕。饮酒过量、饮食油腻、休息不足，看似是生活小事，实际可能影响身体状态和返岗安全。",
+          heat: "高温天气下，身体疲劳、出汗增多、注意力下降，都会给安全生产带来隐患。越是天气不舒服，越要把防暑降温、班前确认和现场互保做扎实。",
+          meeting: "会议精神不能只停留在纸面上，关键要落到岗位、落到班组、落到每天的安全行动中。最直接的贯彻就是守规程、查隐患、反违章、保安全。",
+          union: "班组是安全生产的前沿，也是职工成长成才的阵地。一个班组有没有战斗力，既看技能水平，也看安全习惯和责任意识。",
+          safety: "安全园地面向的是" + audience + "，内容要从具体场景说起。安全不是一句提醒，而是每次确认、每次交接、每次操作里的习惯。"
+        };
+        return "聚焦「" + topic + "」：" + (map[scenario] || map.safety);
+      }
+
+      function makeSections(topic, scenario, audience, tone) {
+        var closeH3 = "把提醒变成行动";
+        var close = "看完这篇文章，如果你今天正好在岗，现在就可以做三件事：第一，检查一下自己工位的安全防护装备是否齐全；第二，下班前跟班组的同事互相提醒一句今天看到的安全隐患；第三，把这篇转发到班组群，让更多人看到。安全不是一个人的事，一个人多看一眼、多问一句，可能就避免了一次事故。";
+
+        var scenarios = {
+          disaster: [
+            { heading: "历史不该只被纪念，更应该被记住教训", text: "每一次重大灾害的背后，都不是天灾那么简单。1976年唐山大地震，24万人遇难，其中有相当一部分伤亡是因为建筑质量问题、撤离不及时、缺少应急预案。我们现在回头看，不是为了害怕，而是为了想清楚一件事：如果灾害再来一次，我们准备好了吗？煤矿是高危行业，瓦斯、透水、顶板、运输——每一样都可能夺人命。防灾减灾不是一句口号，它是每次下井前检查自救器、每次班前会确认避灾路线、每次应急演练认真对待。记住了历史，不等于记住教训。真正记住教训，是把每一次'如果'变成'幸好'。" },
+            { heading: "避灾路线不是摆设，关键时刻能救命", text: "每个矿井都有避灾路线，每个工人都背过。但真到出事的时候，有多少人能在黑暗、烟雾、恐慌中准确找到最近的逃生出口？应急管理部有一组数据：矿难中成功逃生的人员，90% 以上是因为提前熟悉了避灾路线并且参加过至少一次实战演练。所以今天下班前，请你做一件事：沿着你的岗位走到最近的避灾出口，走一遍。看看路线上有没有堆放杂物挡住了通道，看看指示牌是否清晰可见。发现问题，报告班组长。这不是走过场，这是在给自己和家人留一条活路。" },
+            { heading: "应急预案要从纸面走到脑子里", text: "现在多数矿井都有应急预案，但预案写在文件柜里是没有用的。真正的应急能力，体现在你是否知道自己岗位的第一响应应该是什么——是关停设备？是通知调度？是组织撤离？还是原地待命？建议每个班组每周花 10 分钟，模拟一个突发场景：比如'工作面瓦斯超限报警'，每个人说出自己应该做什么。不需要讲得多专业，关键是能说清楚第一步。记住一个原则：先保命，再报告，然后才能谈抢救。" },
+            { heading: "身边的人就是最好的安全网", text: "煤矿里最危险的不是设备故障，是'我以为'。我以为他看到了我，我以为设备已经停了，我以为那个顶板没有问题。如果这时候旁边有人多看了一眼、多问了一句，也许就不会出事。互保联保不是签个字就完了，是真的要在工作中互相盯着。你看到工友面罩没戴好，别不好意思说；你觉得某个操作有风险，一定要提出来。别人可能当时觉得你啰嗦，但事后会感谢你。因为在井下，你的眼睛就是工友的第二条命。" },
+            { heading: "把防灾变成日常习惯", text: "防灾减灾不是等到灾来了才做的事。它应该是每天的习惯：到岗先看安全环境，操作前确认设备状态，遇到异常立刻报告，下班前检查一遍工位。这些小事重复一千遍，就成了本能。而本能，就是最可靠的应急能力。" }
+          ],
+          health: [
+            { heading: "身体不是革命的本钱，是安全生产的前提", text: "每年体检报告出来，总有人说'没什么大事，就是有点高'——血压高、血脂高、血糖高。但煤矿一线是什么环境？高温、潮湿、粉尘、噪音，再加上倒班带来的作息紊乱。一个血压不稳定的人下井，头晕一下可能就是一条命。2024年全国职业病报告中，煤矿行业职业病患者占了工业领域的近 20%。这不是吓唬人，这是提醒：身体不是你自己一个人的事，你的状态直接影响到班组的安全。" },
+            { heading: "倒班职工的三个健康底线", text: "如果你在倒班，请至少守住三条底线。第一，下了夜班不要马上喝酒。肝脏在夜间本来就在高负荷工作，再灌一瓶啤酒等于加倍损伤。第二，定期量血压。特别是 40 岁以上的师傅，建议每周量一次，超过 140/90 就要重视，别等头晕了才想起吃药。第三，每年必须参加职业健康体检，不要觉得麻烦就找人替。体检不是为了应付检查，是让你知道自己的身体还能不能扛得起这份工作。" },
+            { heading: "饮食和作息才是最好的安全装备", text: "很多工友觉得安全装备就是安全帽、自救器、防护口罩，其实你昨晚睡得好不好、今天早饭吃了没有，才是最重要的安全装备。疲劳状态下，人的反应时间会延长 30%-50%，判断力也会下降。井下操作差 1 秒可能就是事故。所以如果你今天感觉很累、精神不好，一定要跟班组长说，不要硬撑。这不可耻，这是对自己和工友负责。班组也应该主动关心成员的状态，看到谁脸色不好，多问一句。" },
+            { heading: "家人是最好的安全监督员", text: "说句实话，领导说一百遍注意安全，不如孩子说一句'爸爸早点回来'管用。如果你觉得安全规定很烦，想想家里等你的人。如果你觉得劳保用品戴着难受，想想万一出事家人怎么办。安全不是给别人做的，是给你自己和你身后那个家做的。" }
+          ],
+          heat: [
+            { heading: "热不是小事，热射病是会死人的", text: "很多人觉得'热点怕什么，忍忍就过去了'。但热射病的死亡率高达 50% 以上。当体温超过 40℃ 时，体内的蛋白质开始变性——跟煮鸡蛋是一个道理。煤矿井下温度高、湿度大、通风受限，是热射病的高风险场所。如果你或者身边的工友出现头晕、恶心、皮肤干热不出汗的症状，千万不要以为'喝口水就好了'。必须立即停止作业，转移到阴凉通风处，用冷水擦拭身体，同时拨打急救电话。这不是小题大做，这是救命的常识。" },
+            { heading: "补水的正确方式，你可能一直没做对", text: "天热出汗多，补水是必须的。但很多人喜欢喝冰水、汽水，甚至喝两口酒'解暑'，这些全是错的。冰水会让胃部血管突然收缩，影响散热；含糖饮料会增加身体的代谢负担；酒精更危险——它会抑制身体的体温调节中枢，让人感觉凉快，其实体温在上升。正确的做法是：少量多次喝温水，每 20-30 分钟喝 100-150 毫升。如果出汗量大，水里面加点盐或者喝淡盐水。班组应该提前准备足够的饮用水和防暑药品，不要等到有人不舒服了才去找。" },
+            { heading: "高温下的设备也需要关心", text: "高温不只影响人，也影响设备。电机过热容易烧毁，电缆绝缘层在高温下老化加快，液压系统可能因油温过高而失灵。所以在高温季节，巡检时要特别注意：电机运行温度是否正常？电缆有无发热发软？消防器材是否在位可用？发现异常，及时报告处理。人和设备都安全，这个班才算平安。" },
+            { heading: "班组要做好三件事", text: "如果你是班组长或安全员，高温季节每天至少做三件事：第一，班前会确认每个人的身体状况，有人不舒服就别下井；第二，在每个作业点检查饮用水和防暑药品是否到位；第三，定期巡视，看到有人状态不对，立刻让他休息。安全生产，预防永远比抢救有用。" }
+          ],
+          meeting: [
+            { heading: "会议精神不是用来念的，是用来干的", text: "每次上面开完会、发完文件，最怕的就是'以会议落实会议'——开个会念一遍文件，然后就没然后了。对于安全园地来说，会议精神的核心价值在于：它告诉你接下来一段时间，安全工作的重点在哪里。所以文职人员在写这类稿件时，要做三件事：第一，从文件里找出和本矿、本班组直接相关的 3-5 个关键点；第二，把每个关键点转成一个具体的岗位行为；第三，用'上级要求什么、我们为什么重要、应该怎么做'的结构写成短文。这样一线职工才看得懂、愿意看、能用上。" },
+            { heading: "从文件语言到人话的翻译", text: "集团文件里经常有'进一步强化安全生产责任落实''深入开展隐患排查治理'这样的表述。如果直接搬到安全园地，职工看了就划走。需要翻译——'强化责任落实'翻译过来就是'每个人清楚自己的安全职责别推给别人'，'深入开展隐患排查'翻译过来就是'今天下班前多看一眼设备有没有异常'。翻译的原则是：把抽象名词降维到具体动作，把官方表述接上职工的日常。" },
+            { heading: "会议精神的三层转化法", text: "转化会议精神，建议用三层法：第一层，提要求——上级要求我们做什么（一句话说清楚）；第二层，讲原因——这件事和一线职工有什么关系（必须让人感觉'跟我有关'）；第三层，给动作——具体到岗位上应该怎么做（最好能列出 2-3 条操作指引）。三层写完，这不只是一篇传达稿，它是一份行动指南。" },
+            { heading: "让传达变得有温度", text: "没必要每篇都板着脸。可以在文章开头加一句'最近上面开了个会，跟咱们班组关系挺大，简单跟大家说一下'，瞬间拉近距离。传达精神不是念文件，是帮职工理解'上头的想法跟我们有什么关系'。能做到这一点，安全园地就不是'又发通知了'，而是'又有提醒了'。" }
+          ],
+          union: [
+            { heading: "班组建设不是搞活动，是建安全防线", text: "工会经常组织劳动竞赛、技能比武、班组建设活动，有些职工觉得就是'走形式'。但真正的班组建设，目标应该是让每个工友在日常工作中自然形成安全互助的习惯。比如技能比武比的不只是技术和速度，更要比有没有按规程操作——每一次操作都按标准来，比武的冠军才真正值得尊敬。" },
+            { heading: "用身边人讲身边事", text: "最好的安全教育不是讲大道理，是让身边人讲身边事。如果有职工因为严格遵守操作规程避免了一次事故，或者因为工友及时提醒躲过了一次风险，一定要把这些故事写出来。'那天要不是老张多看了一眼'——这种真实故事，比任何安全标语都管用。工会可以定期征集班组安全故事，每季度选几个最典型的发到安全园地，让更多工友看到。" },
+            { heading: "技能提升就是安全保障", text: "煤矿行业技术进步很快，智能化工作面、远程监控、自动化设备越来越多。但设备再先进，操作的人不懂，反而更危险。所以工会组织的技能培训、技术比武，不是为了一纸证书，是为了让每个操作工真正搞得懂设备、看得清风险。建议班组每周抽 15 分钟做一次微型技能分享，让懂操作的师傅讲一个操作要点，积少成多。" },
+            { heading: "劳模精神的核心是安全第一", text: "很多人觉得劳模就是'干得多、干得快'，其实真正的工匠精神，核心是干得对、干得安全。一个干了三十年没出过事故的老师傅，比一个产量高但总违规的人更值得学习。在宣传劳模和工匠时，不仅要说他们多能干，更要突出他们怎么守安全规程、怎么带徒弟养成好习惯。这才是对班组真正有用的榜样。" }
+          ],
+          safety: [
+            { heading: "事故从来不是突然发生的", text: "每一起煤矿事故背后，平均有 29 个轻微事故和 300 个隐患信号在前面。但大多数都被忽略了。比如今天设备有点异响，觉得'应该没事'；明天顶板掉了一点碎渣，觉得'不大要紧'；后天有人操作少了一步，也没人提醒。这些信号不处理，迟早会攒成一件大事。海因里希法则告诉我们：每 330 起同类事件中，300 起没有伤害，29 起轻微伤害，1 起严重伤害。你永远不知道你忽略的那个信号，会不会就是那万分之一的'一'。" },
+            { heading: "交班不是交钥匙，是交安全", text: "交接班是煤矿日常管理中最容易被忽视的环节。很多人赶时间，口头说一句'没啥事'就走人了。但隐患往往就藏在交接的空档里。正确的交接班至少应该做到：设备状态当面确认并记录、异常情况必须口头 + 书面双交接、关键参数（瓦斯浓度、温度、压力等）逐项对照。如果交班的人说不清楚或者记录不全，接班的人有权拒绝接班。这不是矫情，这是在堵漏洞。" },
+            { heading: "停电挂牌不是麻烦，是保命", text: "维修设备时拉闸断电、挂上警示牌，这是写在每本安全规程里的铁律。但每年都有人因为'就修一下很快的'而跳过这个步骤，结果设备被误启动造成伤亡。记住一个死规矩：只要手要伸进设备里，就必须确认断电、挂牌、上锁，并且自己拿着钥匙。任何人跟你说'不用那么麻烦'，你都不要听。你的命是你自己的，不是别人一句'没事'能替的。" },
+            { heading: "消防不是消防队的事，是每个人的事", text: "煤矿井下有大量机电设备、油脂、电缆，火灾风险不比地面低。但很多人觉得消防是消防队的事，跟自己没关系。实际上，火灾发生后的前 3 分钟是最关键的灭火窗口，等消防队赶到了，火势可能已经不可控制。所以每个工位旁边都应该有灭火器，每个工人都应该会用它。今天下班前，走到离你最近的那个灭火器前面，看看压力表指针是不是在绿色区域，确认一下你会不会打开它。不会的，找安全员教一遍。" },
+            { heading: "安全检查不是找茬，是找命", text: "每次安全检查，总有人觉得是来找麻烦的。但换个角度想：如果今天检查发现了一个隐患，等于帮你避免了一次可能的事故。安全检查不是在挑你的毛病，是在帮你找可能让你受伤甚至送命的漏洞。所以下次有人来检查，别躲也别嫌烦，主动跟他说说自己觉得哪里可能有风险。你比检查人员更了解你的岗位——他们需要你的配合，你更需要他们的专业。" }
+          ]
+        };
+
+        var sections = scenarios[scenario] || scenarios.safety;
+        // 在开头插入基于用户主题的动态首段
+        sections = [{ heading: topic, text: "本文围绕「" + topic + "」这一主题，面向" + audience + "的实际工作场景展开。以下从安全生产的多个维度进行分析和提醒，帮助一线职工理解风险、规范操作、守住安全底线。" }].concat(sections);
+        // 追加行动号召收尾
+        sections = sections.concat([{ heading: closeH3, text: close }]);
+        return sections;
+      }
+
+      function makeImagePlan(topic, scenario) {
+        var plans = {
+          disaster: [
+            "封面：防灾减灾主题模板，主标题突出\u201C铭记历史、守护安全\u201D。",
+            "正文图1：唐山或防灾减灾相关公开素材，避免使用冲击性灾难画面。",
+            "正文图2：应急演练、避灾路线、班前安全确认类矿内自有照片。",
+            "提示卡：三条岗位安全提醒，适合做红绿双色重点卡片。"
+          ],
+          health: [
+            "封面：职工健康节日提醒模板，画面干净，不使用夸张疾病图片。",
+            "正文图1：节日聚餐适度饮食提醒图。",
+            "正文图2：心脑血管健康科普图或自制信息卡。",
+            "提示卡：少饮酒、少油腻、早休息、稳返岗。"
+          ],
+          heat: [
+            "封面：高温防暑安全提醒模板。",
+            "正文图1：防暑降温物资或班前会提醒照片。",
+            "正文图2：补水、休息、异常症状报告的信息卡。",
+            "提示卡：高温天气安全四提醒。"
+          ],
+          meeting: [
+            "封面：会议精神学习贯彻模板，避免使用未经授权的会议现场照片。",
+            "正文图1：班组学习、职工阅读、现场落实类照片。",
+            "正文图2：将会议关键词做成三点式信息卡。",
+            "提示卡：把部署落到岗位行动。"
+          ],
+          union: [
+            "封面：班组建设或工会关怀模板。",
+            "正文图1：班组活动、劳动竞赛、技能培训照片。",
+            "正文图2：先进职工或岗位现场照片。",
+            "提示卡：安全、技能、责任三项关键词。"
+          ],
+          safety: [
+            "封面：安全提醒通用模板。",
+            "正文图1：岗位现场或安全培训照片。",
+            "正文图2：风险提示信息卡。",
+            "提示卡：确认、提醒、报告、整改。"
+          ]
+        };
+        return plans[scenario] || plans.safety;
+      }
+
+      function detectFlags(topic, related) {
+        var text = topic + " " + related.map(function(item) { return item.title + item.tags.join(" "); }).join(" ");
+        return {
+          politics: /党|总书记|中央|党委|国家安全|会议精神|讲话/.test(text),
+          health: /健康|饮酒|心脑血管|疾病|高温|防暑/.test(text),
+          disaster: /地震|事故|灾害|伤亡|应急/.test(text),
+          internal: /集团会议|领导讲话|矿内|范矿|开滦/.test(text)
+        };
+      }
+
+      function makeReviewItems(flags, related) {
+        var items = [];
+        if (flags.politics) items.push("涉及党政宣传或会议精神，发布前需核对官方口径和原文来源。");
+        if (flags.health) items.push("涉及健康科普，建议引用卫健、疾控或权威医疗机构资料，避免诊断式表述。");
+        if (flags.disaster) items.push("涉及灾害或事故主题，应坚持正面宣传和安全教育，不渲染刺激性细节。");
+        if (flags.internal) items.push("涉及集团或矿内材料，确认该材料属于可公开宣传范围后再发布。");
+        if (!items.length) items.push("未触发高敏提醒，仍建议由文职人员进行发布前校对。");
+        if (related.length) items.push("来源链接、发布时间和抓取时间应随稿件一并留档。");
+        return items;
+      }
+
+      function makeRationale(scenario, audience) {
+        var map = {
+          disaster: "本稿采用\u201C纪念日 + 防灾减灾 + 岗位安全责任\u201D的写法，避免渲染灾难细节，把情绪落到正面引导和岗位行动上，更适合国企安全宣传场景。",
+          health: "本稿采用\u201C生活场景 + 健康风险 + 返岗安全\u201D的写法，让职工先觉得和自己有关，再自然接受安全提醒，避免生硬说教。",
+          heat: "本稿采用\u201C天气变化 + 身体状态 + 现场安全\u201D的写法，把防暑降温从生活提醒转成安全生产提醒，方便班组直接使用。",
+          meeting: "本稿采用\u201C上级部署 + 岗位转化 + 行动要求\u201D的写法，避免照搬会议语言，让会议精神能被文职人员转成安全园地内容。",
+          union: "本稿采用\u201C工会关怀 + 班组建设 + 安全文化\u201D的写法，既有工会味，也能服务安全园地的核心目标。",
+          safety: "本稿采用\u201C具体场景 + 风险提醒 + 行动建议\u201D的写法，面向手机端阅读，尽量让" + audience + "看完后知道下一步该怎么做。"
+        };
+        return (map[scenario] || map.safety);
+      }
+
+      /* ========== 渲染函数 ========== */
+
+      function renderDraft(draft) {
+        els.resultMainTitle.textContent = draft.mainTitle.title;
+        if (els.coverTitle) els.coverTitle.textContent = draft.mainTitle.title;
+        els.traceList.innerHTML = draft.trace
+          .map(function(step) {
+            return '<div class="trace-step"><strong>' + escapeHtml(step.label) + '</strong><p>' + escapeHtml(step.value) + '</p></div>';
+          }).join("");
+        els.titleList.innerHTML = draft.titles
+          .map(function(item) {
+            return '<li class="title-style"><span>' + escapeHtml(item.style) + '</span><strong>' + escapeHtml(item.title) + '</strong><p>' + escapeHtml(item.reason) + '</p></li>';
+          }).join("");
+        els.leadText.textContent = draft.lead;
+        els.articleBody.innerHTML = draft.sections
+          .map(function(section) {
+            return '<section class="article-section"><h4>' + escapeHtml(section.heading) + '</h4><p>' + escapeHtml(section.text) + '</p></section>';
+          }).join("");
+        els.imagePlan.innerHTML = draft.images.map(function(item) { return '<li>' + escapeHtml(item) + '</li>'; }).join("");
+        els.sourceList.innerHTML = draft.sources
+          .map(function(item) {
+            var srcDisplay = item.sourceUrl
+              ? '<a href="' + escapeHtml(item.sourceUrl) + '" target="_blank" rel="noopener">' + escapeHtml(item.source) + '</a>'
+              : escapeHtml(item.source);
+            return '<li>' + srcDisplay + '：' + escapeHtml(item.title) + '（' + escapeHtml(item.publishedAt) + '）</li>';
+          })
+          .join("");
+        els.rationaleText.textContent = draft.rationale;
+        els.reviewList.innerHTML = draft.reviews.map(function(item) { return '<li>' + escapeHtml(item) + '</li>'; }).join("");
+
+        showResultToggle();
+      }
+
+      function renderAiDraft(draft) {
+        // 主标题
+        els.resultMainTitle.textContent = draft.title || "图文稿";
+        if (els.coverTitle) els.coverTitle.textContent = draft.title || "图文稿";
+
+        // 封面描述
+        if (draft.coverDesc) {
+          var coverHint = document.getElementById("coverHint");
+          if (!coverHint) {
+            coverHint = document.createElement("p");
+            coverHint.id = "coverHint";
+            coverHint.style.cssText = "color:#666;font-size:13px;margin:8px 0;";
+            var coverPreview = document.querySelector(".cover-preview");
+            if (coverPreview) coverPreview.appendChild(coverHint);
+          }
+          if (coverHint) coverHint.textContent = "封面：" + draft.coverDesc;
+        }
+
+        // 隐藏旧的栏目化区域
+        if (els.traceList) els.traceList.innerHTML = "";
+        if (els.titleList) els.titleList.innerHTML = "";
+        if (els.leadText) els.leadText.textContent = "";
+
+        // 正文：直接用 HTML 渲染，清理 img-hint 中的冗余前缀
+        if (draft.content && els.articleBody) {
+          var cleaned = draft.content.replace(/(<div class=['"]img-hint['"]>)\s*📷\s*建议配图[：:]\s*/g, '<div class="img-hint">');
+          els.articleBody.innerHTML = cleaned;
+        }
+
+        // 配图关键词
+        if (draft.images && draft.images.length && els.imagePlan) {
+          els.imagePlan.innerHTML = draft.images.map(function(kw) {
+            return '<li>搜图关键词：' + escapeHtml(kw) + '</li>';
+          }).join("");
+        }
+
+        // 审核提醒
+        if (draft.reviews && draft.reviews.length && els.reviewList) {
+          els.reviewList.innerHTML = draft.reviews.map(function(r) {
+            return '<li>' + escapeHtml(typeof r === "string" ? r : (r.text || "")) + '</li>';
+          }).join("");
+        }
+
+        // 来源说明
+        if (draft.sources && draft.sources.length && els.sourceList) {
+          els.sourceList.innerHTML = draft.sources.map(function(item) {
+            var srcDisplay = item.sourceUrl
+              ? '<a href="' + escapeHtml(item.sourceUrl) + '" target="_blank" rel="noopener">' + escapeHtml(item.source) + '</a>'
+              : escapeHtml(item.source);
+            return '<li>' + srcDisplay + '：' + escapeHtml(item.title) + '（' + escapeHtml(item.publishedAt) + '）</li>';
+          }).join("");
+        } else {
+          els.sourceList.innerHTML = "";
+        }
+        els.rationaleText.textContent = "";
+
+        showResultToggle();
+      }
+
+      /* ========== 写作思路折叠切换 ========== */
+
+      function showResultToggle() {
+        var wrap = document.getElementById("resultToggleWrap");
+        if (wrap) wrap.style.display = "";
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        var toggle = document.getElementById("resultToggle");
+        if (!toggle) return;
+        toggle.addEventListener("click", function() {
+          var metaBlocks = document.querySelectorAll(".meta-block");
+          var isOpen = toggle.classList.contains("open");
+          if (isOpen) {
+            // 收起 → 隐藏
+            metaBlocks.forEach(function(b) { b.style.display = "none"; });
+            toggle.classList.remove("open");
+            toggle.innerHTML = '查看写作思路 <span class="toggle-arrow">&#9660;</span>';
+          } else {
+            // 展开 → 显示
+            metaBlocks.forEach(function(b) { b.style.display = ""; });
+            toggle.classList.add("open");
+            toggle.innerHTML = '收起写作思路 <span class="toggle-arrow">&#9660;</span>';
+          }
+        });
+      });
+
+      /* ========== 工具函数 ========== */
+
+      function getDraftText() {
+        if (els.resultPanel.hidden) return "";
+        var title = els.resultMainTitle.textContent;
+        var bodyText = els.articleBody ? els.articleBody.innerText : "";
+
+        return title + "\n\n" + bodyText;
+      }
+
+      function copyDraft() {
+        var text = getDraftText();
+        if (!text) return;
+        try {
+          navigator.clipboard.writeText(text).then(function() {
+            showToast("已复制图文草稿。");
+          }).catch(function() {
+            showToast("当前浏览器不支持自动复制。");
+          });
+        } catch (e) {
+          showToast("当前浏览器不支持自动复制。");
+        }
+      }
+
+      function resetDraft() {
+        state.activeCategory = "全部";
+        state.selectedMaterialId = null;
+        els.topicInput.value = "";
+        els.materialSearch.value = "";
+        els.resultPanel.hidden = true;
+        renderTabs();
+        renderMaterials();
+        showToast("已清空当前草稿。");
+      }
+
+      function setStatus(text) {
+        els.statusPill.textContent = text;
+      }
+
+      /* ===== 生成进度条控制 ===== */
+      function showProgress() {
+        var bar = document.getElementById("genProgress");
+        if (!bar) return;
+        bar.removeAttribute("hidden");
+        bar.style.display = "flex";
+        var steps = bar.querySelectorAll(".gen-step");
+        var connectors = bar.querySelectorAll(".gen-connector");
+        steps.forEach(function(s) { s.classList.remove("active", "done"); });
+        connectors.forEach(function(c) { c.classList.remove("done", "active"); });
+        // 第一步立即 active
+        steps[0].classList.add("active");
+      }
+      function stepProgress(idx) {
+        // idx: 0-based, 标记该步为 done，下一步为 active
+        var bar = document.getElementById("genProgress");
+        if (!bar) return;
+        var steps = bar.querySelectorAll(".gen-step");
+        var connectors = bar.querySelectorAll(".gen-connector");
+        for (var i = 0; i <= idx; i++) {
+          steps[i].classList.remove("active");
+          steps[i].classList.add("done");
+          if (i < connectors.length) {
+            connectors[i].classList.remove("active");
+            connectors[i].classList.add("done");
+          }
+        }
+        var next = idx + 1;
+        if (next < steps.length) {
+          steps[next].classList.add("active");
+          if (next - 1 < connectors.length) {
+            connectors[next - 1].classList.add("active");
+          }
+        }
+      }
+      function hideProgress() {
+        var bar = document.getElementById("genProgress");
+        if (!bar) return;
+        bar.style.display = "none";
+        bar.setAttribute("hidden", "");
+      }
+
+      /* ================================================================
+         IndexedDB 知识库模块
+         ================================================================ */
+      var KBManager = (function() {
+        var DB_NAME = "anquanyuandi_kb";
+        var DB_VERSION = 1;
+        var STORE_NAME = "articles";
+        var MAX_ITEMS = 100;
+        var _db = null;
+
+        function openDB() {
+          return new Promise(function(resolve, reject) {
+            if (_db) { resolve(_db); return; }
+            var request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onupgradeneeded = function(e) {
+              var db = e.target.result;
+              if (!db.objectStoreNames.contains(STORE_NAME)) {
+                var store = db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+                store.createIndex("title", "title", { unique: false });
+                store.createIndex("category", "category", { unique: false });
+                store.createIndex("createdAt", "createdAt", { unique: false });
+              }
+            };
+            request.onsuccess = function(e) { _db = e.target.result; resolve(_db); };
+            request.onerror = function(e) { reject(e.target.error); };
+          });
+        }
+
+        function addArticle(obj) {
+          return openDB().then(function(db) {
+            return getAllArticles().then(function(all) {
+              if (all.length >= MAX_ITEMS) {
+                var oldest = all[0];
+                var txn = db.transaction(STORE_NAME, "readwrite");
+                txn.objectStore(STORE_NAME).delete(oldest.id);
+              }
+              return new Promise(function(resolve, reject) {
+                var record = {
+                  title: obj.title || "未命名条目",
+                  content: obj.content || "",
+                  category: obj.category || "通用",
+                  tags: obj.tags || [],
+                  createdAt: Date.now()
+                };
+                var txn2 = db.transaction(STORE_NAME, "readwrite");
+                var store = txn2.objectStore(STORE_NAME);
+                var req = store.add(record);
+                req.onsuccess = function() { resolve(req.result); };
+                req.onerror = function() { reject(req.error); };
+              });
+            });
+          });
+        }
+
+        function deleteArticle(id) {
+          return openDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+              var txn = db.transaction(STORE_NAME, "readwrite");
+              var req = txn.objectStore(STORE_NAME).delete(id);
+              req.onsuccess = function() { resolve(); };
+              req.onerror = function() { reject(req.error); };
+            });
+          });
+        }
+
+        function getAllArticles() {
+          return openDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+              var txn = db.transaction(STORE_NAME, "readonly");
+              var req = txn.objectStore(STORE_NAME).getAll();
+              req.onsuccess = function() {
+                var results = req.result || [];
+                results.sort(function(a, b) { return a.createdAt - b.createdAt; });
+                resolve(results);
+              };
+              req.onerror = function() { reject(req.error); };
+            });
+          });
+        }
+
+        function searchArticles(keyword) {
+          return getAllArticles().then(function(all) {
+            if (!keyword) return all;
+            var kw = keyword.toLowerCase();
+            return all.filter(function(item) {
+              return (item.title && item.title.toLowerCase().indexOf(kw) !== -1) ||
+                (item.content && item.content.toLowerCase().indexOf(kw) !== -1) ||
+                (item.category && item.category.toLowerCase().indexOf(kw) !== -1) ||
+                (item.tags && item.tags.some(function(t) { return t.toLowerCase().indexOf(kw) !== -1; }));
+            });
+          });
+        }
+
+        function getArticle(id) {
+          return openDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+              var txn = db.transaction(STORE_NAME, "readonly");
+              var req = txn.objectStore(STORE_NAME).get(id);
+              req.onsuccess = function() { resolve(req.result); };
+              req.onerror = function() { reject(req.error); };
+            });
+          });
+        }
+
+        function updateArticle(id, obj) {
+          return openDB().then(function(db) {
+            return getArticle(id).then(function(record) {
+              if (!record) throw new Error("条目不存在");
+              return new Promise(function(resolve, reject) {
+                record.title = obj.title || record.title;
+                record.content = obj.content !== undefined ? obj.content : record.content;
+                record.category = obj.category || record.category;
+                record.tags = obj.tags || record.tags;
+                var txn = db.transaction(STORE_NAME, "readwrite");
+                var req = txn.objectStore(STORE_NAME).put(record);
+                req.onsuccess = function() { resolve(); };
+                req.onerror = function() { reject(req.error); };
+              });
+            });
+          });
+        }
+
+        return {
+          addArticle: addArticle,
+          deleteArticle: deleteArticle,
+          getArticle: getArticle,
+          updateArticle: updateArticle,
+          getAllArticles: getAllArticles,
+          searchArticles: searchArticles,
+          MAX_ITEMS: MAX_ITEMS
+        };
+      })();
+
+      /* ================================================================
+         知识库管理 UI
+         ================================================================ */
+      var kbEls = {
+        toggle: document.getElementById("kbToggle"),
+        body: document.getElementById("kbBody"),
+        search: document.getElementById("kbSearch"),
+        addBtn: document.getElementById("kbAddBtn"),
+        list: document.getElementById("kbList")
+      };
+
+      function renderKBList(items) {
+        if (!items || !items.length) {
+          kbEls.list.innerHTML = '<div class="kb-empty">知识库为空，点击"添加条目"开始积累</div>';
+          return;
+        }
+        kbEls.list.innerHTML = items.map(function(item) {
+          var tagsHtml = (item.tags && item.tags.length)
+            ? '<div class="kb-item-tags">' + item.tags.map(function(t) { return '<span class="kb-item-tag">' + escapeHtml(t) + '</span>'; }).join("") + '</div>'
+            : "";
+          var dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString("zh-CN") : "";
+          return '<div class="kb-item" data-id="' + item.id + '">' +
+            '<div class="kb-item-info">' +
+              '<p class="kb-item-title">' + escapeHtml(item.title) + '</p>' +
+              '<p class="kb-item-meta">' + escapeHtml(item.category) + (dateStr ? " · " + dateStr : "") + '</p>' +
+              tagsHtml +
+            '</div>' +
+            '<div class="kb-item-actions"><button class="kb-item-edit" data-edit="' + item.id + '">编辑</button><button class="kb-item-delete" data-delete="' + item.id + '">删除</button></div>' +
+          '</div>';
+        }).join("");
+      }
+
+      function refreshKB() {
+        var kw = kbEls.search.value.trim();
+        var promise = kw ? KBManager.searchArticles(kw) : KBManager.getAllArticles();
+        promise.then(function(items) { renderKBList(items); }).catch(function(err) {
+          console.warn("知识库读取失败:", err);
+          renderKBList([]);
+        });
+      }
+
+      function showKBAddDialog() {
+        var title = prompt("请输入条目标题：");
+        if (title === null) return;
+        title = title.trim();
+        if (!title) { showToast("标题不能为空"); return; }
+        var content = prompt("请输入条目正文：");
+        if (content === null) return;
+        content = (content || "").trim();
+        var category = prompt("请输入分类（默认：通用）：", "通用");
+        if (category === null) return;
+        category = (category || "通用").trim();
+        var tagsStr = prompt("请输入标签（逗号分隔）：");
+        if (tagsStr === null) return;
+        var tags = (tagsStr || "").split(",").map(function(t) { return t.trim(); }).filter(Boolean);
+        KBManager.addArticle({
+          title: title,
+          content: content,
+          category: category,
+          tags: tags
+        }).then(function() {
+          showToast("条目已添加");
+          refreshKB();
+        }).catch(function(err) {
+          console.error(err);
+          showToast("添加失败");
+        });
+      }
+
+      function showKBEditDialog(id) {
+        KBManager.getArticle(id).then(function(article) {
+          if (!article) { showToast("条目不存在"); return; }
+          var title = prompt("编辑标题：", article.title);
+          if (title === null) return;
+          title = title.trim();
+          if (!title) { showToast("标题不能为空"); return; }
+          var content = prompt("编辑正文：", article.content || "");
+          if (content === null) return;
+          content = (content || "").trim();
+          var category = prompt("编辑分类：", article.category || "通用");
+          if (category === null) return;
+          category = (category || "通用").trim();
+          var tagsStr = prompt("编辑标签（逗号分隔）：", (article.tags || []).join(","));
+          if (tagsStr === null) return;
+          var tags = (tagsStr || "").split(",").map(function(t) { return t.trim(); }).filter(Boolean);
+          KBManager.updateArticle(id, {
+            title: title,
+            content: content,
+            category: category,
+            tags: tags
+          }).then(function() {
+            showToast("素材已更新");
+            refreshKB();
+          }).catch(function(err) {
+            console.error(err);
+            showToast("更新失败");
+          });
+        }).catch(function(err) {
+          console.error(err);
+          showToast("读取条目失败");
+        });
+      }
+
+      function bindKBEvents() {
+        kbEls.toggle.addEventListener("click", function() {
+          kbEls.toggle.classList.toggle("open");
+          kbEls.body.classList.toggle("open");
+        });
+        kbEls.addBtn.addEventListener("click", showKBAddDialog);
+        kbEls.search.addEventListener("input", refreshKB);
+        kbEls.list.addEventListener("click", function(e) {
+          var editBtn = e.target.closest("[data-edit]");
+          if (editBtn) {
+            showKBEditDialog(parseInt(editBtn.dataset.edit, 10));
+            return;
+          }
+          var delBtn = e.target.closest("[data-delete]");
+          if (!delBtn) return;
+          var id = parseInt(delBtn.dataset.delete, 10);
+          if (!confirm("确认删除该条目？")) return;
+          KBManager.deleteArticle(id).then(function() {
+            showToast("已删除");
+            refreshKB();
+          }).catch(function(err) {
+            console.error(err);
+            showToast("删除失败");
+          });
+        });
+        refreshKB();
+      }
+
+      // ===== DIAGNOSTICS =====
+      (function(){
+        var db = document.getElementById("diagBar");
+        var msgs = [];
+        function log(m){ msgs.push(m); if(db) db.textContent = msgs.join(" | "); console.log("[DIAG]", m); }
+        function err(m){ msgs.push("ERR:"+m); if(db){ db.textContent = msgs.join(" | "); db.style.color="#f33"; } console.error("[DIAG]", m); }
+        
+        log("script start");
+        log("els ready="+(typeof els!=="undefined"));
+        log("materials ready="+(typeof materials!=="undefined")+" len="+(typeof materials!=="undefined"?materials.length:"?"));
+        
+        window.__diag_log = log;
+        window.__diag_err = err;
+        
+        // 延迟检查 init 是否完成
+        setTimeout(function(){
+          if(window.__initDone) {
+            db.style.background = "#161";
+            log("init OK ✓");
+            // 3秒后隐藏
+            setTimeout(function(){ db.style.display="none"; }, 3000);
+          } else {
+            err("init NOT done after 1s!");
+          }
+        }, 1000);
+      })();
+
+      console.log("=== PRE-INIT ===");
+      try {
+        console.log("=== INIT START ===", typeof materials, materials ? materials.length : 0);
+        init();
+        window.__initDone = true;
+        console.log("=== INIT DONE ===");
+      } catch(e) {
+        window.__diag_err ? window.__diag_err(e.message||"unknown") : null;
+        console.error("=== INIT CRASH ===", e.message);
+        document.body.innerHTML = '<div style="padding:40px;color:red;font-size:16px;"><h2>JS Error</h2><pre>' + (e.message||'') + '\n' + (e.stack||'') + '</pre></div>';
+      }
+    </script>
+  </body>
+</html>
