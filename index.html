@@ -1490,24 +1490,32 @@ function searchBing(topic) {
   function fetchOne(src) {
     var query = "site:" + src.site + " " + topic;
     var url = getProxy() + encodeURIComponent(
-      "https://www.bing.com/search?q=" + encodeURIComponent(query) + "&format=rss&setmkt=zh-CN&cc=CN&count=5"
+      "https://www.bing.com/search?q=" + encodeURIComponent(query) + "&setmkt=zh-CN&cc=CN&count=5"
     );
-    return fetch(url, { headers: { "Accept": "text/xml" } })
+    return fetch(url, { headers: { "Accept": "text/html", "X-User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" } })
       .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
-      .then(function(xml) {
+      .then(function(html) {
         var results = [];
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(xml, "text/xml");
-        var items = doc.querySelectorAll("channel > item");
-        for (var i = 0; i < items.length && results.length < 5; i++) {
-          var el = items[i];
-          var title = (el.querySelector("title") || {}).textContent || "";
-          var link = (el.querySelector("link") || {}).textContent || "";
-          var summary = (el.querySelector("description") || {}).textContent || "";
-          title = title.replace(/<[^>]+>/g, "").trim();
-          summary = summary.replace(/<[^>]+>/g, "").trim();
+        // 匹配 Bing HTML 搜索结果块
+        var re = /<li class="b_algo"[^>]*>[\s\S]*?<h2[^>]*>\s*<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/gi;
+        var m;
+        while ((m = re.exec(html)) && results.length < 5) {
+          var link = m[1];
+          var title = m[2].replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
+          var summary = m[3].replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
           if (!title || link.indexOf("http") !== 0) continue;
+          // 过滤明显的无关结果
+          if (title.indexOf("Math Calculator") === 0 || title.indexOf("Online ") === 0) continue;
           results.push({ title: title, link: link, summary: summary, source: src.name, content: "" });
+        }
+        // 回退：正则不匹配时尝试更宽松匹配
+        if (results.length === 0) {
+          var re2 = /<li class="b_algo"[^>]*>[\s\S]*?<a[^>]*href="(https?:\/\/[^"]*)"[^>]*>([\s\S]*?)<\/a>/gi;
+          while ((m = re2.exec(html)) && results.length < 5) {
+            var t2 = m[2].replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
+            if (!t2) continue;
+            results.push({ title: t2, link: m[1], summary: t2, source: src.name, content: "" });
+          }
         }
         return results;
       })
