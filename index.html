@@ -151,6 +151,7 @@ h3 {
 }
 
 .compose-panel,
+.material-panel,
 .result-panel,
 .output-block {
   border: 1px solid var(--line);
@@ -160,6 +161,7 @@ h3 {
 }
 
 .compose-panel,
+.material-panel,
 .result-panel {
   padding: 16px;
 }
@@ -576,6 +578,7 @@ select:focus {
   }
 
   .compose-panel,
+  .material-panel,
   .result-panel {
     padding: 13px;
   }
@@ -951,7 +954,24 @@ select:focus {
           </div>
         </div>
 
-        </section>
+        <div class="material-panel">
+          <div class="section-head">
+            <h2>自动参考素材</h2>
+            <div style="display:flex;gap:8px;">
+              <button class="text-button" id="fetchMaterialsBtn">获取安全素材</button>
+              <button class="text-button" id="exportDailyCardBtn">导出日报</button>
+              <button class="text-button" id="clearFilterBtn">全部</button>
+              <button class="text-button" id="exportMaterialsBtn">导出素材</button>
+              <button class="text-button" id="importMaterialsBtn">导入素材</button>
+            </div>
+          </div>
+
+          <input class="search-input" id="materialSearch" type="search" placeholder="可选：手动搜索安全、健康、工会、节日、党政等素材" />
+
+          <div class="tabs" id="categoryTabs" role="tablist"></div>
+          <div class="material-list" id="materialList"></div>
+        </div>
+      </section>
 
       <section class="result-panel" id="resultPanel" hidden>
         <div class="section-head result-head">
@@ -1037,7 +1057,6 @@ select:focus {
       <label class="setting-label" for="baseUrlInput">Base URL</label>
       <input type="text" id="baseUrlInput" placeholder="https://api.deepseek.com" />
       <p class="hint">选择模型后自动填入默认地址，也可手动修改</p>
-    </div>
     </div>
     <div class="settings-actions">
       <button class="btn-cancel" id="settingsCancel">取消</button>
@@ -1448,9 +1467,7 @@ function initSettings() {
 
 /* ========== CORS 代理 ========== */
 var CORS_PROXY_LIST = [
-  "https://corsproxy.io/?",
-  "https://api.allorigins.win/raw?url=",
-  "https://cors-anywhere.herokuapp.com/"
+  "https://cf-cors-proxy.1079889004.workers.dev/?url="
 ];
 var CORS_PROXY_IDX = 0;
 function getProxy() { return CORS_PROXY_LIST[CORS_PROXY_IDX]; }
@@ -1836,11 +1853,6 @@ function fetchArticleContent(item) {
           var byReview = !state.reviewFilter || item.review === true;
           var searchable = [item.title, item.source, item.summary, item.category].concat(item.tags).join(" ").toLowerCase();
           return byCategory && byReview && (!keyword || searchable.indexOf(keyword) !== -1);
-        }).sort(function(a, b) {
-          var da = a.publishedAt || "", db = b.publishedAt || "";
-          if (da > db) return -1;
-          if (da < db) return 1;
-          return 0;
         });
       }
 
@@ -1980,23 +1992,41 @@ function fetchArticleContent(item) {
         setStatus("AI 生成中");
         showProgress();
 
-        // 联网搜索
-        stepProgress(0);
-        searchBing(topic).then(function(searchResults) {
-          if (!searchResults || searchResults.length === 0) {
-            hideProgress();
-            setStatus("无结果");
-            showToast("未搜到相关内容，请换个关键词试试");
-            els.generateBtn.disabled = false;
-            els.generateBtn.textContent = "自动生成文章";
-            return Promise.reject(new Error("NO_RESULTS"));
-          }
+        // 获取选中的素材（如果有）
+        var selectedMaterial = null;
+        if (state.selectedMaterialId) {
+          selectedMaterial = materials.find(function(item) { return item.id === state.selectedMaterialId; });
+        }
 
-          // 抓取全文
-          return Promise.all(searchResults.map(fetchArticleContent)).then(function() {
-            return searchResults;
+        // 构建搜索 Promise：优先用素材原文链接，失败则走 Bing 搜索
+        var searchPromise;
+        if (selectedMaterial && selectedMaterial.sourceUrl) {
+          // 有原文链接，直接抓取
+          stepProgress(0);
+          searchPromise = Promise.resolve().then(function() {
+            return fetchArticleContent({ link: selectedMaterial.sourceUrl, source: "原文", title: selectedMaterial.title });
+          }).then(function(result) {
+            if (!result.content || result.content.length < 80) {
+              throw new Error("DIRECT_FETCH_SHORT");
+            }
+            return [{ title: selectedMaterial.title, link: selectedMaterial.sourceUrl, content: result.content, source: "原文", summary: result.content.substring(0, 200) }];
+          }).catch(function(e) {
+            console.warn("原文抓取失败，回退 Bing 搜索:", e.message);
+            return searchBing(topic).then(function(results) {
+              if (!results || results.length === 0) throw new Error("NO_RESULTS");
+              return Promise.all(results.map(fetchArticleContent)).then(function() { return results; });
+            });
           });
-        }).then(function(searchResults) {
+        } else {
+          // 没有原文链接，走 Bing 搜索
+          stepProgress(0);
+          searchPromise = searchBing(topic).then(function(results) {
+            if (!results || results.length === 0) throw new Error("NO_RESULTS");
+            return Promise.all(results.map(fetchArticleContent)).then(function() { return results; });
+          });
+        }
+
+        searchPromise.then(function(searchResults) {
           stepProgress(1);
           return callDeepSeekDraft({
             topic: topic,
@@ -2014,7 +2044,14 @@ function fetchArticleContent(item) {
           els.generateBtn.disabled = false;
           els.generateBtn.textContent = "自动生成文章";
         }).catch(function(err) {
-          if (err && err.message === "NO_RESULTS") return;
+          if (err && err.message === "NO_RESULTS") {
+            hideProgress();
+            setStatus("无结果");
+            showToast("未搜到相关内容，请换个关键词试试");
+            els.generateBtn.disabled = false;
+            els.generateBtn.textContent = "自动生成文章";
+            return;
+          }
           console.warn("生成失败:", (err && err.message) || err);
           hideProgress();
           setStatus("生成失败");
