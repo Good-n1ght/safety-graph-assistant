@@ -1019,9 +1019,7 @@ select:focus {
             <div class="gen-connector"></div>
             <div class="gen-step" data-step="2"><span class="gen-dot">3</span><span class="gen-label">AI 生成中</span></div>
             <div class="gen-connector"></div>
-            <div class="gen-step" data-step="3"><span class="gen-dot">4</span><span class="gen-label">智能配图</span></div>
-            <div class="gen-connector"></div>
-            <div class="gen-step" data-step="4"><span class="gen-dot">5</span><span class="gen-label">排版完成</span></div>
+            <div class="gen-step" data-step="3"><span class="gen-dot">4</span><span class="gen-label">排版完成</span></div>
           </div>
         </div>
 
@@ -1579,7 +1577,8 @@ function initSettings() {
       };
 
       /* ========== 素材数据（localStorage缓存优先，有效期15天） ========== */
-      var MATERIALS_LS_KEY = "huanxing_materials_cache";
+      var MATERIALS_CACHE_VERSION = 1;
+      var MATERIALS_LS_KEY = "huanxing_materials_cache_v" + MATERIALS_CACHE_VERSION;
       var MATERIALS_CACHE_DAYS = 30;
 
       function loadMaterialsFromCache() {
@@ -1591,7 +1590,7 @@ function initSettings() {
           var age = Date.now() - cached.savedAt;
           if (age > MATERIALS_CACHE_DAYS * 24 * 60 * 60 * 1000) return null;
           return cached.materials;
-        } catch(e) { return null; }
+        } catch(e) { localStorage.removeItem(MATERIALS_LS_KEY); return null; }
       }
 
       function saveMaterialsToCache(mats) {
@@ -2151,14 +2150,13 @@ function initSettings() {
             setStatus("AI 生成");
             // Pexels 配图
             return fetchPexelsImages(draft.images || []).then(function(pexelsResults) {
-              stepProgress(3);
               if (pexelsResults && pexelsResults.length) {
                 draft.content = injectPexelsImages(draft.content, pexelsResults);
               }
               renderAiDraft(draft);
               els.resultPanel.hidden = false;
               els.resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-              stepProgress(4);
+              stepProgress(3);
               setTimeout(hideProgress, 800);
               clearSafety();
               els.generateBtn.disabled = false;
@@ -2276,7 +2274,7 @@ function initSettings() {
                 { role: "user", content: userPrompt }
               ],
               response_format: { type: "json_object" },
-              temperature: 0.7,
+              temperature: 0.9,
               max_tokens: 3600,
               stream: false
             })
