@@ -2100,7 +2100,7 @@ function fetchArticleContent(item) {
         var systemPrompt = buildAISystemPrompt(params.searchResults || []);
         var userPrompt = buildAIUserPrompt(params);
         var startTime = Date.now();
-        var TIMEOUT_MS = 15000;
+        var TIMEOUT_MS = 60000;
 
         return new Promise(function(resolve, reject) {
           var done = false;
@@ -2132,7 +2132,6 @@ function fetchArticleContent(item) {
           }).then(function(response) {
             return response.json().then(function(payload) {
             if (!done) {
-              done = true;
               clearInterval(timerId);
               if (!response.ok) {
                 throw new Error((payload && payload.error && payload.error.message) || ("DeepSeek HTTP " + response.status));
@@ -2141,7 +2140,9 @@ function fetchArticleContent(item) {
               if (!content) {
                 throw new Error("DeepSeek 返回内容为空");
               }
-              resolve(normalizeModelDraft(parseJsonContent(content), params));
+              var result = normalizeModelDraft(parseJsonContent(content), params);
+              done = true;
+              resolve(result);
             }
           }).catch(function(err) {
             if (!done) {
