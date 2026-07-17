@@ -1492,8 +1492,10 @@ function searchBing(topic) {
     var url = getProxy() + encodeURIComponent(
       "https://cn.bing.com/search?q=" + encodeURIComponent(query) + "&setmkt=zh-CN&cc=CN&count=5"
     );
-    return fetch(url, { headers: { "Accept": "text/html", "X-User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" } })
-      .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+    var ctrl = new AbortController();
+    var t = setTimeout(function() { ctrl.abort(); }, 15000);
+    return fetch(url, { headers: { "Accept": "text/html", "X-User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" }, signal: ctrl.signal })
+      .then(function(r) { clearTimeout(t); if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
       .then(function(html) {
         var results = [];
         // 匹配 Bing HTML 搜索结果块
@@ -1532,7 +1534,9 @@ function searchBing(topic) {
 /* ========== 抓取文章全文 ========== */
 function fetchArticleContent(item) {
   var url = getProxy() + encodeURIComponent(item.link);
-  return fetch(url, { headers: { "Accept": "text/html" } })
+  var controller = new AbortController();
+  var timeout = setTimeout(function() { controller.abort(); }, 12000);
+  return fetch(url, { headers: { "Accept": "text/html" }, signal: controller.signal })
     .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
     .then(function(html) {
       var text = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
@@ -1541,9 +1545,11 @@ function fetchArticleContent(item) {
                      .replace(/&nbsp;/g, " ")
                      .replace(/\s+/g, " ")
                      .trim();
-      item.content = text;
+      // 取前 6000 字，避免把大段导航/页脚噪音喂给 AI
+      item.content = text.length > 6000 ? text.substring(0, 6000) : text;
     })
-    .catch(function(err) { console.warn("抓取失败: " + item.link, err); item.content = item.summary; });
+    .catch(function(err) { console.warn("抓取失败: " + item.link, err); item.content = item.summary; })
+    .finally(function() { clearTimeout(timeout); });
 }
 
 
