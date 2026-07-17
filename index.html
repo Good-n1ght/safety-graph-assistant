@@ -1494,7 +1494,7 @@ function searchBing(topic) {
     );
     var ctrl = new AbortController();
     var t = setTimeout(function() { ctrl.abort(); }, 15000);
-    return fetch(url, { headers: { "Accept": "text/html", "X-User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" }, signal: ctrl.signal })
+    return fetch(url, { headers: { "Accept": "text/html" }, signal: ctrl.signal })
       .then(function(r) { clearTimeout(t); if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
       .then(function(html) {
         var results = [];
