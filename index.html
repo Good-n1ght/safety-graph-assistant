@@ -1635,6 +1635,14 @@ function fetchArticleContent(item) {
           oldMats.forEach(function(om) { existingTitles[om.title] = true; });
           var freshItems = items.filter(function(it) { return !existingTitles[it.title]; });
           materials = oldMats.concat(freshItems);
+          /* 按发布日期降序：最新的排最前面 */
+          materials.sort(function(a, b) {
+            var da = a.publishedAt || "";
+            var db = b.publishedAt || "";
+            if (da > db) return -1;
+            if (da < db) return 1;
+            return 0;
+          });
           categories = ["全部"];
           var seenCat = {};
           materials.forEach(function(m2) {
