@@ -1475,17 +1475,19 @@ function switchProxy() { CORS_PROXY_IDX = (CORS_PROXY_IDX + 1) % CORS_PROXY_LIST
 
 /* ========== 安全类搜索源 ========== */
 var SEARCH_SOURCES = [
-  { name: "应急管理部", site: "mem.gov.cn", keywords: "安全 事故 应急" },
-  { name: "国家矿山安全监察局", site: "chinamine-safety.gov.cn", keywords: "安全 矿山 事故 应急" },
-  { name: "中国煤炭报", site: "coalnews.cn", keywords: "煤矿 安全 事故" },
-  { name: "煤矿安全网", site: "mkaq.org", keywords: "煤矿 安全 事故" },
-  { name: "安全文化网", site: "anquan.com.cn", keywords: "安全 事故 应急 矿山 煤矿" }
+  { name: "应急管理部", site: "mem.gov.cn", keywords: "安全 事故 应急 消防 防火 节日 安全提醒" },
+  { name: "国家矿山安全监察局", site: "chinamine-safety.gov.cn", keywords: "安全 矿山 事故 应急 班组建设 现场实训" },
+  { name: "中国煤炭报", site: "coalnews.cn", keywords: "煤矿 安全 事故 现场实训 技能培训 健康 班组" },
+  { name: "煤矿安全网", site: "mkaq.org", keywords: "煤矿 安全 事故 班组建设 现场实训 班组长" },
+  { name: "安全文化网", site: "anquan.com.cn", keywords: "安全 事故 应急 矿山 煤矿 职工健康 心脑血管 高血压 饮食 季节 班组" },
+  { name: "煤炭资讯网", site: "cwestc.com", keywords: "职工健康 心脑血管 高血压 急救 戒烟 限酒 节日安全 班组建设" },
+  { name: "国家卫健委", site: "nhc.gov.cn", keywords: "职工健康 职业病 心脑血管 高血压 糖尿病 饮食 戒烟 限酒 季节防病" }
 ];
 
 /* ========== Bing 搜索 ========== */
 function searchBing(topic) {
   var allResults = [];
-  var sources = SEARCH_SOURCES.slice(0, 3);
+  var sources = SEARCH_SOURCES;
 
   function fetchOne(src) {
     var query = "site:" + src.site + " " + topic;
